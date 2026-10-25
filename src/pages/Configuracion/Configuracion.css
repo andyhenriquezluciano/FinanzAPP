@@ -1,10 +1,11 @@
 :root {
-  --config-page-bg: linear-gradient(135deg, #191724 0%, #1f1d2e 100%);
-  --config-card-bg: rgba(37, 35, 58, 0.9);
+  --config-page-bg: #191724;
+  --config-card-bg: #1f1d2e;
   --config-card-border: rgba(255, 255, 255, 0.08);
   --config-text: #e0def4;
   --config-muted: #b6b2d1;
-  --config-input-bg: #26233a;
+  --config-input-bg: #191724;
+  --config-section-bg: #1f1d2e;
   --config-input-border: rgba(255, 255, 255, 0.14);
   --config-pill-bg: rgba(235, 111, 146, 0.18);
   --config-pill-text: #eb6f92;
@@ -94,7 +95,8 @@ body.config-page .main-content::-webkit-scrollbar-thumb:hover {
 .profile-card {
   grid-column:1/-1}
 .preferences-card {
-  grid-column:1}
+  grid-column:1;
+  background:#191724}
 .config-right-stack {
   grid-column:2;
   display:grid;
@@ -159,7 +161,7 @@ body.config-page .main-content::-webkit-scrollbar-thumb:hover {
   display:grid;
   gap:16px;
   padding:22px 24px;
-  background:var(--config-section-bg, #232136);
+  background:var(--config-section-bg, #1f1d2e);
   border-radius:18px;
   transition:border-color 0.2s ease,background 0.2s ease}
 .settings-section-header {
