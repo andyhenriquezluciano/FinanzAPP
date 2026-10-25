@@ -24,6 +24,9 @@
  * @returns {string} UID del usuario, o 'guest' si no hay sesión activa.
  */
 function _getUserId() {
+  if (typeof window !== 'undefined' && window.AuthService) {
+    return window.AuthService.getUserId();
+  }
   try {
     const authUser = localStorage.getItem('authUser');
     if (authUser) {
@@ -41,6 +44,9 @@ function _getUserId() {
  * @returns {boolean}
  */
 function _isGuestUser() {
+  if (typeof window !== 'undefined' && window.AuthService) {
+    return window.AuthService.isGuest();
+  }
   try {
     const authUser = localStorage.getItem('authUser');
     if (!authUser) return true;
@@ -251,11 +257,13 @@ class FirestoreStore extends Store {
 
   /** @override */
   async load() {
-    // Esperar a que Firebase Auth resuelva el usuario antes de intentar cargar.
-    // waitForAuth() solo resuelve con un UID cuando hay sesión Firebase real —
-    // devuelve null si Firebase no tiene usuario (no hay fallback a localStorage).
+    // Invitado → leer directo de localStorage sin esperar Firebase Auth
+    if (_isGuestUser()) {
+      return FirestoreStore.#readLocalSnapshot('guest');
+    }
+
     let userId = 'guest';
-    let hasFirebaseSession = false; // ¿Firebase Auth confirmó al usuario?
+    let hasFirebaseSession = false;
 
     if (window.FirestoreDB && window.firebase) {
       try {
@@ -320,6 +328,13 @@ class FirestoreStore extends Store {
 
   /** @override */
   async save(state) {
+    // Invitado → guardar solo en localStorage sin intentar Firestore
+    if (_isGuestUser()) {
+      FirestoreStore.#writeLocalSnapshot('guest', state);
+      this.#lastLocalSaveAt = Date.now();
+      return;
+    }
+
     try {
       // Preferir el UID resuelto por FirestoreDB (via waitForAuth en load()) sobre
       // la lectura síncrona de localStorage, que puede no estar actualizada aún.

@@ -10,10 +10,7 @@
         : 'https://us-central1-finanzapp-fb.cloudfunctions.net/api';
     }
 
-    /**
-     * Guarda credenciales IMAP en el backend de forma cifrada y segura.
-     * @param {{ email: string, appPassword?: string, targetSenders: string[] }} params
-     */
+    /** * Guarda credenciales IMAP en el backend de forma cifrada y segura. */
     async saveImapCredentials({ email, appPassword, targetSenders }) {
       if (window.FirestoreDB?.ensureFirebaseInitialized) {
         window.FirestoreDB.ensureFirebaseInitialized();
@@ -44,10 +41,7 @@
       return data;
     }
 
-    /**
-     * Obtiene el estado seguro de la configuración IMAP (sin exponer la contraseña).
-     * @returns {Promise<{ configured: boolean, email: string, targetSenders: string[], lastSyncAt: string|null }|null>}
-     */
+    /** * Obtiene el estado seguro de la configuración IMAP (sin exponer la contraseña). */
     async getImapStatus() {
       if (window.FirestoreDB?.ensureFirebaseInitialized) {
         window.FirestoreDB.ensureFirebaseInitialized();
@@ -76,10 +70,7 @@
       }
     }
 
-    /**
-     * Llama al backend para forzar la sincronización IMAP a demanda.
-     * Retorna una promesa con la cantidad de transacciones encontradas y sincronizadas.
-     */
+    /** * Llama al backend para forzar la sincronización IMAP a demanda. */
     async syncImapOnDemand() {
       if (window.FirestoreDB?.ensureFirebaseInitialized) {
         window.FirestoreDB.ensureFirebaseInitialized();

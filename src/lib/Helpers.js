@@ -125,6 +125,34 @@ class Helpers {
   }
 
   /**
+   * Sanitiza contenido HTML usando DOMPurify si está disponible o escapando caracteres.
+   * @param {string} html
+   * @returns {string}
+   */
+  static sanitize(html) {
+    if (typeof html !== 'string') return '';
+    if (typeof window !== 'undefined' && window.DOMPurify?.sanitize) {
+      return window.DOMPurify.sanitize(html, { FORCE_BODY: false });
+    }
+    return html
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  /**
+   * Asigna contenido HTML sanitizado a un elemento del DOM.
+   * @param {HTMLElement} element
+   * @param {string} htmlContent
+   */
+  static setHTML(element, htmlContent) {
+    if (!element) return;
+    element.innerHTML = Helpers.sanitize(htmlContent);
+  }
+
+  /**
    * Formatea una cadena de cantidad parcial mientras el usuario escribe.
    * Soporta separador decimal con coma o punto; devuelve formato con punto de miles.
    * @param {string|null} raw - Cadena cruda del input.
@@ -273,7 +301,6 @@ class Helpers {
     }
   }
 
-
   /**
    * Convierte una fecha a formato `YYYY-MM-DD` para usar en inputs `<input type="date">`.
    * @param {Date} date
@@ -282,6 +309,81 @@ class Helpers {
   static formatDateForInput(date) {
     if (!date || !(date instanceof Date)) return '';
     return date.toISOString().split('T')[0];
+  }
+
+  /**
+   * Redondea un número a decimales especificados (por defecto 2) evitando errores de coma flotante.
+   * @param {number|string} n - Número a redondear.
+   * @param {number} [decimals=2] - Cantidad de decimales.
+   * @returns {number}
+   */
+  static round2(n, decimals = 2) {
+    const factor = Math.pow(10, decimals);
+    return Math.round((Number(n) + Number.EPSILON) * factor) / factor;
+  }
+
+  /**
+   * Genera un identificador único seguro con marca de tiempo y prefijo opcional.
+   * @param {string} [prefix=''] - Prefijo opcional (ej: 'cat', 'budget').
+   * @returns {string} ID generado (ej: 'cat_1712345678_ab9c2d1').
+   */
+  static generateId(prefix = '') {
+    const randomPart = Math.random().toString(36).slice(2, 9);
+    const ts = Date.now();
+    return prefix ? `${prefix}_${ts}_${randomPart}` : `${ts}_${randomPart}`;
+  }
+
+  /**
+   * Parsea una cadena de fecha cruda en múltiples formatos (YYYY-MM-DD, DD/MM/YYYY, MM/DD/YYYY, DD.MM.YYYY).
+   * Respeta la preferencia regional configurada por el usuario (DMY o MDY).
+   * @param {string|Date|number} raw - Entrada de fecha.
+   * @returns {Date|null} Objeto Date válido o null si el formato es inválido.
+   */
+  static parseDateInput(raw) {
+    if (!raw) return null;
+    if (raw instanceof Date) return isNaN(raw.getTime()) ? null : raw;
+    const s = String(raw).trim();
+    let day, month, year;
+    let isMdy = false;
+    try {
+      const rawSettings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+      isMdy = rawSettings?.dateFormat === 'mdy';
+    } catch (_) {}
+
+    if (s.includes('-')) {
+      const parts = s.split('-');
+      if (parts.length !== 3) return null;
+      year = Number(parts[0]);
+      month = Number(parts[1]);
+      day = Number(parts[2]);
+    } else if (s.includes('/') || s.includes('.')) {
+      const parts = s.includes('/') ? s.split('/') : s.split('.');
+      if (parts.length !== 3) return null;
+      if (isMdy) {
+        month = Number(parts[0]);
+        day = Number(parts[1]);
+        year = Number(parts[2]);
+      } else {
+        day = Number(parts[0]);
+        month = Number(parts[1]);
+        year = Number(parts[2]);
+      }
+    } else {
+      return null;
+    }
+    if (!year || !month || !day) return null;
+    const d = new Date(year, month - 1, day);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  }
+
+  /**
+   * Alias de conveniencia para parseDateInput.
+   * @param {string|Date|number} raw
+   * @returns {Date|null}
+   */
+  static parseFechaInput(raw) {
+    return Helpers.parseDateInput(raw);
   }
 
   /**
@@ -398,6 +500,7 @@ try { localStorage.removeItem('finanzapp:shared_filters:v1'); } catch {}
 
 Helpers.applyAppSettings();
 
+window.Helpers = Helpers;
 window.Core = window.Core || {};
 
 /**
@@ -418,6 +521,11 @@ window.Core.helpers = {
   validateDate:                 (...a) => Helpers.validateDate(...a),
   formatDate:                   (...a) => Helpers.formatDate(...a),
   formatDateForInput:           (...a) => Helpers.formatDateForInput(...a),
+  round2:                       (...a) => Helpers.round2(...a),
+  round:                        (...a) => Helpers.round2(...a),
+  generateId:                   (...a) => Helpers.generateId(...a),
+  parseDateInput:               (...a) => Helpers.parseDateInput(...a),
+  parseFechaInput:              (...a) => Helpers.parseFechaInput(...a),
   loadSharedFilters:            (...a) => Helpers.loadSharedFilters(...a),
   saveSharedFilters:            (...a) => Helpers.saveSharedFilters(...a)
 };

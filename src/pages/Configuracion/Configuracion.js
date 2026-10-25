@@ -13,7 +13,7 @@
   const SETTINGS_KEY = 'finanzapp:settings:v1';
   const LAST_BACKUP_KEY = 'finanzapp:lastBackupAt';
 
-  const DEFAULT_SETTINGS = Object.freeze({
+  const DEFAULT_SETTINGS = window.Helpers?.DEFAULT_SETTINGS || Object.freeze({
     theme: 'dark',
     categoryViewMode: 'compact',
     currency: 'DOP',
@@ -57,37 +57,41 @@
     attachEvents();
 
     const initialTheme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
-    applyTheme(initialTheme, false);
+    window.BasePage.applyTheme(initialTheme, false);
 
     loadSettings();
     applySettingsToForm();
     initConfigDropdowns();
     updateFormatPreview();
     populateUserInfo();
-    initProfileTooltip();
+    window.BasePage.initUserInfoTooltip();
 
     // 1. Inicializar Firebase de inmediato
     if (window.FirestoreDB?.ensureFirebaseInitialized) {
       window.FirestoreDB.ensureFirebaseInitialized();
     }
     if (window.firebaseAuth && typeof window.firebaseAuth.init === 'function') {
-      try { await window.firebaseAuth.init(); } catch (_) {}
+      try { await window.firebaseAuth.init(); } catch (e) { window.Logger?.warn('Configuracion', 'Error inicializando firebaseAuth', e); }
     }
 
     // 2. Si Firebase Auth aún no ha resuelto el usuario, esperar hasta 3.5s (omitir si es invitado)
-    const isGuest = (() => {
-      try {
-        const raw = localStorage.getItem('authUser');
-        if (!raw || raw === 'guest') return true;
-        const p = JSON.parse(raw);
-        return p && (p.provider === 'guest' || p.uid === 'guest');
-      } catch { return true; }
-    })();
+    const isGuest = (typeof window !== 'undefined' && window.AuthService)
+      ? window.AuthService.isGuest()
+      : (() => {
+          try {
+            const raw = localStorage.getItem('authUser');
+            if (!raw || raw === 'guest') return true;
+            const p = JSON.parse(raw);
+            return p && (p.provider === 'guest' || p.uid === 'guest');
+          } catch { return true; }
+        })();
 
     if (!isGuest && window.FirestoreDB?.waitForAuth) {
       try {
         await window.FirestoreDB.waitForAuth(3500);
-      } catch (_) {}
+      } catch (e) {
+        window.Logger?.warn('Configuracion', 'Timeout esperando auth en FirestoreDB', e);
+      }
     }
 
     // 3. Poblar perfil y cargar credenciales IMAP con el usuario autenticado
@@ -102,20 +106,28 @@
         window.firebase.auth().onAuthStateChanged(async (user) => {
           if (user) {
             try {
-              localStorage.setItem('authUser', JSON.stringify({
-                name: user.displayName || user.email?.split('@')[0] || 'Usuario',
-                email: user.email || '',
-                picture: user.photoURL || user.providerData?.[0]?.photoURL || '',
-                uid: user.uid,
-                provider: user.providerData?.[0]?.providerId || 'google'
-              }));
-            } catch {}
+              if (window.AuthService) {
+                window.AuthService.setUser(user);
+              } else {
+                localStorage.setItem('authUser', JSON.stringify({
+                  name: user.displayName || user.email?.split('@')[0] || 'Usuario',
+                  email: user.email || '',
+                  picture: user.photoURL || user.providerData?.[0]?.photoURL || '',
+                  uid: user.uid,
+                  provider: user.providerData?.[0]?.providerId || 'google'
+                }));
+              }
+            } catch (err) {
+              window.Logger?.warn('Configuracion', 'Error persistiendo authUser', err);
+            }
             populateUserInfo();
             await loadImapCredentials();
             await refreshDataSummary();
           }
         });
-      } catch (e) {}
+      } catch (e) {
+        window.Logger?.warn('Configuracion', 'Error en listener onAuthStateChanged', e);
+      }
     }
   }
 
@@ -162,14 +174,18 @@
   }
 
   function attachEvents() {
-    elements.themeToggle?.addEventListener('click', toggleTheme);
-    elements.themeShortcutBtn?.addEventListener('click', toggleTheme);
+    window.BasePage.initThemeToggle('themeToggle');
+    window.BasePage.initThemeToggle('themeShortcutBtn');
 
-    elements.logoutButton?.addEventListener('click', handleLogout);
-    elements.logoutShortcutBtn?.addEventListener('click', handleLogout);
-    elements.logoutNowBtn?.addEventListener('click', handleLogout);
+    window.BasePage.initLogout('logoutButton');
+    window.BasePage.initLogout('logoutShortcutBtn');
+    window.BasePage.initLogout('logoutNowBtn');
 
     elements.preferencesForm?.addEventListener('submit', onSavePreferences);
+    document.getElementById('savePreferencesBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      onSavePreferences(e);
+    });
     elements.resetPreferencesBtn?.addEventListener('click', onResetPreferences);
 
     elements.exportBackupBtn?.addEventListener('click', onExportBackup);
@@ -178,7 +194,7 @@
 
     window.addEventListener('storage', (e) => {
       if (e.key === 'theme' && e.newValue) {
-        applyTheme(e.newValue, false);
+        window.BasePage.applyTheme(e.newValue, false);
         setDropdownValue('themePreference', e.newValue);
       }
     });
@@ -189,231 +205,23 @@
   // ── Sección IMAP ──────────────────────────────────────────────────────────
 
   function initImapSection() {
-    const saveBtn = document.getElementById('saveImapBtn');
-    const syncBtn = document.getElementById('syncImapBtn');
-    const openTutorialBtn = document.getElementById('openTutorialBtn');
-    const closeTutorialBtn = document.getElementById('closeTutorialBtn');
-    const tutorialModal = document.getElementById('tutorialModal');
-    const overlay = document.getElementById('alertOverlay');
-    
-    if (openTutorialBtn && tutorialModal) {
-      openTutorialBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        tutorialModal.classList.remove('hidden');
-        tutorialModal.style.display = 'block';
-        if (overlay) {
-          overlay.classList.remove('hidden');
-          overlay.style.display = 'block';
-        }
-      });
-    }
-
-    if (closeTutorialBtn && tutorialModal) {
-      closeTutorialBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        tutorialModal.classList.add('hidden');
-        tutorialModal.style.display = 'none';
-        if (overlay) {
-          overlay.classList.add('hidden');
-          overlay.style.display = 'none';
-        }
-      });
-    }
-
-    // Permitir cerrar haciendo clic en el overlay
-    if (overlay && tutorialModal) {
-      overlay.addEventListener('click', () => {
-        if (!tutorialModal.classList.contains('hidden') && tutorialModal.style.display !== 'none') {
-          tutorialModal.classList.add('hidden');
-          tutorialModal.style.display = 'none';
-          overlay.classList.add('hidden');
-          overlay.style.display = 'none';
-        }
-      });
-    }
-
-    const toggleBtn = document.getElementById('toggleImapPassword');
-    const passInput = document.getElementById('imapPassword');
-    const passIcon = document.getElementById('toggleImapPasswordIcon');
-
-    if (toggleBtn && passInput) {
-      toggleBtn.addEventListener('click', () => {
-        const isPassword = passInput.type === 'password';
-        passInput.type = isPassword ? 'text' : 'password';
-        if (passIcon) {
-          passIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
-          window.LucideHelper?.refresh(toggleBtn);
-        }
-      });
-    }
-    
-    if (!saveBtn) return;
-
-    // Cargar credenciales guardadas
-    loadImapCredentials();
-
-    saveBtn.addEventListener('click', async () => {
-      const email = document.getElementById('imapEmail').value.trim();
-      const passEl = document.getElementById('imapPassword');
-      const password = passEl.value.replace(/\s+/g, '').trim();
-      const senders = document.getElementById('imapSenders').value.split(',').map(s => s.trim()).filter(Boolean);
-      const isAlreadyConfigured = passEl.getAttribute('data-is-configured') === 'true';
-
-      if (!email || senders.length === 0 || (!password && !isAlreadyConfigured)) {
-        if (typeof window._configMostrarToast === 'function') {
-          window._configMostrarToast('Por favor completa todos los campos requeridos.', 'error');
-        }
-        return;
-      }
-
-      if (password && password.length !== 16) {
-        if (typeof window._configMostrarToast === 'function') {
-          window._configMostrarToast(`La Contraseña de App de Google debe tener exactamente 16 letras (sin espacios). La que ingresaste tiene ${password.length} caracteres.`, 'error');
-        }
-        return;
-      }
-
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Guardando...';
-      window.LucideHelper?.refresh(saveBtn);
-
-      try {
-        if (window.FirestoreDB) {
-          await window.FirestoreDB.saveImapSettings({ email, appPassword: password, targetSenders: senders });
-          passEl.value = '';
-          passEl.placeholder = '•••••••••••••••• (Configurada)';
-          passEl.setAttribute('data-is-configured', 'true');
-          passEl.removeAttribute('required');
-
-          if (syncBtn) syncBtn.style.display = 'inline-flex';
+    if (window.ConfiguracionImapSync?.initImapSection) {
+      window.ConfiguracionImapSync.initImapSection({
+        showToast: (msg, type) => {
           if (typeof window._configMostrarToast === 'function') {
-            window._configMostrarToast('Credenciales guardadas correctamente.', 'success');
-            window._configMostrarToast('Credenciales resguardadas y cifradas de forma segura.', 'success');
+            window._configMostrarToast(msg, type);
+          } else if (window.Toast?.show) {
+            window.Toast.show(msg, type);
           }
-        }
-      } catch (e) {
-        console.error('Error al guardar IMAP', e);
-        if (typeof window._configMostrarToast === 'function') {
-          window._configMostrarToast('Error al guardar. Verifica tu conexión.', 'error');
-          window._configMostrarToast(e.message || 'Error al guardar. Verifica tu conexión.', 'error');
-        }
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i data-lucide="save"></i> Guardar';
-        window.LucideHelper?.refresh(saveBtn);
-      }
-    });
-
-    if (syncBtn) {
-      syncBtn.addEventListener('click', async () => {
-        syncBtn.disabled = true;
-        syncBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Sincronizando...';
-        window.LucideHelper?.refresh(syncBtn);
-
-        try {
-          if (window.SyncAPI && typeof window.SyncAPI.syncImapOnDemand === 'function') {
-            const result = await window.SyncAPI.syncImapOnDemand();
-            
-            if (result && Array.isArray(result.transactions) && result.transactions.length > 0) {
-              try {
-                if (window.FirestoreDB?.ensureFirebaseInitialized) {
-                  window.FirestoreDB.ensureFirebaseInitialized();
-                }
-                const user = (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function')
-                  ? window.firebase.auth().currentUser
-                  : null;
-                const storageKey = user ? `finanzapp:gmail:pending_notifications:${user.uid}` : 'finanzapp:gmail:pending_notifications';
-                const rawExisting = localStorage.getItem(storageKey) || '[]';
-                let existing = Array.isArray(JSON.parse(rawExisting)) ? JSON.parse(rawExisting) : [];
-                const existingKeys = new Set(existing.map(n => n.id || `${n.amount}_${n.description}_${n.date}`));
-
-                for (const tx of result.transactions) {
-                  const key = tx.id || `${tx.amount}_${tx.description}_${tx.date}`;
-                  if (!existingKeys.has(key)) {
-                    existing.push({
-                      id: tx.id || ('notif_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
-                      amount: tx.amount,
-                      description: tx.description || 'Transacción Bancaria',
-                      subject: tx.subject || '',
-                      date: tx.date || new Date().toISOString(),
-                      type: tx.type || 'expense',
-                      timestamp: Date.now()
-                    });
-                    existingKeys.add(key);
-                  }
-                }
-
-                localStorage.setItem(storageKey, JSON.stringify(existing));
-                window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
-              } catch (err) {
-                console.warn('Error saving notifications to localStorage', err);
-              }
-            }
-
-            if (typeof window._configMostrarToast === 'function') {
-              window._configMostrarToast('Sincronización completada: ' + (result.count || 0) + ' transacciones nuevas.', 'success');
-            }
-          } else {
-            throw new Error('SyncAPI no disponible');
-          }
-        } catch (e) {
-          console.error(e);
-          if (typeof window._configMostrarToast === 'function') {
-            window._configMostrarToast(e.message || 'Error al sincronizar.', 'error');
-          }
-        } finally {
-          syncBtn.disabled = false;
-          syncBtn.innerHTML = '<i data-lucide="refresh-cw"></i> Sincronizar';
-          window.LucideHelper?.refresh(syncBtn);
-        }
+        },
+        getProfile
       });
     }
   }
-  
+
   async function loadImapCredentials() {
-    if (!window.FirestoreDB) return;
-    try {
-      if (window.FirestoreDB.ensureFirebaseInitialized) {
-        window.FirestoreDB.ensureFirebaseInitialized();
-      }
-
-      // Limpiar datos sensibles en localStorage si quedaron de versiones anteriores
-      try {
-        const authUser = localStorage.getItem('authUser');
-        if (authUser && authUser !== 'guest') {
-          const u = JSON.parse(authUser);
-          if (u.uid) localStorage.removeItem(`finanzapp:imap_settings:${u.uid}`);
-        }
-      } catch {}
-
-      const settings = await window.FirestoreDB.getImapSettings();
-      const emailEl = document.getElementById('imapEmail');
-      const passEl = document.getElementById('imapPassword');
-      const sendersEl = document.getElementById('imapSenders');
-      const syncBtn = document.getElementById('syncImapBtn');
-
-      if (settings && (settings.configured || settings.email || settings.appPassword)) {
-        if (emailEl && settings.email) emailEl.value = settings.email;
-        if (passEl && settings.appPassword) passEl.value = settings.appPassword;
-        if (passEl) {
-          passEl.value = '';
-          passEl.placeholder = '•••••••••••••••• (Configurada)';
-          passEl.setAttribute('data-is-configured', 'true');
-          passEl.removeAttribute('required');
-        }
-        if (sendersEl && settings.targetSenders) {
-          sendersEl.value = Array.isArray(settings.targetSenders) ? settings.targetSenders.join(', ') : settings.targetSenders;
-        }
-        if (syncBtn && settings.appPassword) syncBtn.style.display = 'inline-flex';
-        if (syncBtn) syncBtn.style.display = 'inline-flex';
-      } else {
-        const profile = getProfile();
-        if (emailEl && !emailEl.value && profile.email) {
-          emailEl.value = profile.email;
-        }
-      }
-    } catch (e) {
-      console.warn('Error loading IMAP settings', e);
+    if (window.ConfiguracionImapSync?.loadImapCredentials) {
+      await window.ConfiguracionImapSync.loadImapCredentials(getProfile);
     }
   }
 
@@ -491,7 +299,7 @@
           dd.classList.remove('open');
 
           if (dd.id === 'themePreference') {
-            applyTheme(val, true);
+            window.BasePage.applyTheme(val, true);
             state.settings.theme = val;
             persistSettings();
           }
@@ -541,7 +349,7 @@
     }
 
     const activeTheme = state.settings.theme || storedTheme;
-    applyTheme(activeTheme, true);
+    window.BasePage.applyTheme(activeTheme, true);
   }
 
   function applySettingsToForm() {
@@ -580,7 +388,7 @@
     event.preventDefault();
     state.settings = readSettingsFromForm();
     persistSettings();
-    applyTheme(state.settings.theme, true);
+    window.BasePage.applyTheme(state.settings.theme, true);
     updateFormatPreview();
     window._configMostrarToast('Preferencias guardadas correctamente.', 'success');
   }
@@ -595,7 +403,7 @@
 
     state.settings = { ...DEFAULT_SETTINGS };
     persistSettings();
-    applyTheme(state.settings.theme, true);
+    window.BasePage.applyTheme(state.settings.theme, true);
     applySettingsToForm();
     updateFormatPreview();
 
@@ -649,54 +457,6 @@
       }
     } catch (e) {
       // No bloquear si Firestore falla
-    }
-  }
-
-
-  function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || state.settings.theme || 'dark';
-    const next = current === 'light' ? 'dark' : 'light';
-    state.settings.theme = next;
-    applyTheme(next, true);
-    persistSettings();
-    applySettingsToForm();
-    updateFormatPreview();
-  }
-
-  function applyTheme(theme, persist) {
-    const normalized = theme === 'light' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', normalized);
-    document.body.setAttribute('data-theme', normalized);
-    document.documentElement.style.backgroundColor = normalized === 'light' ? '#f5efea' : '#191724';
-    document.body.style.backgroundColor = normalized === 'light' ? '#f5efea' : '#191724';
-
-    if (persist) {
-      localStorage.setItem('theme', normalized);
-      try {
-        state.settings.theme = normalized;
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
-        if (window.FirestoreDB && typeof window.FirestoreDB.saveSettings === 'function' && window.FirestoreDB.currentUserId) {
-          window.FirestoreDB.saveSettings(state.settings).catch(() => {});
-        }
-      } catch (e) {}
-    }
-
-    updateThemeIcon(normalized);
-  }
-
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'theme' && e.newValue) {
-      applyTheme(e.newValue, false);
-      if (state.settings) state.settings.theme = e.newValue;
-      try { applySettingsToForm(); } catch (err) {}
-    }
-  });
-
-  function updateThemeIcon(theme) {
-    const sidebarIcon = elements.themeToggle?.querySelector('i');
-    if (sidebarIcon) {
-      sidebarIcon.setAttribute('data-lucide', theme === 'light' ? 'moon' : 'sun');
-      window.LucideHelper?.refresh(elements.themeToggle);
     }
   }
 
@@ -804,139 +564,57 @@
     }
   }
 
-  const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024;
-  const MAX_IMPORT_STRING_LENGTH = 5000;
-  const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
-
-  function hasForbiddenKeys(value) {
-    if (value === null || typeof value !== 'object') return false;
-    if (Array.isArray(value)) return value.some(hasForbiddenKeys);
-    return Object.keys(value).some(key => FORBIDDEN_KEYS.has(key)) ||
-           Object.values(value).some(hasForbiddenKeys);
-  }
-
-  function isValidImportAmount(amount) {
-    return typeof amount === 'number' && Number.isFinite(amount) && Math.abs(amount) <= 1e12;
-  }
-
-  function isValidImportDate(value) {
-    if (value instanceof Date) return !isNaN(value.getTime());
-    if (typeof value !== 'string') return false;
-    return !isNaN(new Date(value).getTime());
-  }
-
-  function isValidImportString(value) {
-    return typeof value !== 'string' || value.length <= MAX_IMPORT_STRING_LENGTH;
-  }
-
-  function validateImportPayload(state) {
-    if (!state || typeof state !== 'object') return false;
-
-    const transactions = Array.isArray(state.transactions) ? state.transactions : [];
-    for (const t of transactions) {
-      if (!isValidImportAmount(t?.amount)) return false;
-      if (!isValidImportDate(t?.date)) return false;
-      if (!isValidImportString(t?.description)) return false;
-      if (!isValidImportString(t?.id)) return false;
-    }
-
-    const categories = Array.isArray(state.categories) ? state.categories : [];
-    for (const c of categories) {
-      if (!isValidImportString(c?.name)) return false;
-      if (!isValidImportString(c?.id)) return false;
-      const nested = Array.isArray(c?.transactions) ? c.transactions : [];
-      for (const t of nested) {
-        if (!isValidImportAmount(t?.amount)) return false;
-        if (!isValidImportDate(t?.date)) return false;
-        if (!isValidImportString(t?.description)) return false;
-        if (!isValidImportString(t?.id)) return false;
-      }
-    }
-
-    return true;
-  }
-
   function normalizeState(raw) {
-    if (!raw || typeof raw !== 'object') {
-      return {
-        transactions: [],
-        categories: [],
-        budgets: {}
-      };
-    }
-
-    if (hasForbiddenKeys(raw)) {
-      throw new Error('Formato de respaldo no válido.');
-    }
-
-    const normalized = {
-      transactions: Array.isArray(raw?.transactions) ? raw.transactions : [],
-      categories: Array.isArray(raw?.categories) ? raw.categories : [],
-      budgets: raw?.budgets && typeof raw.budgets === 'object' ? raw.budgets : {}
-    };
-
-    return normalized;
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.normalizeState(raw) : { transactions: [], categories: [], budgets: {} };
   }
 
   function countTransactions(snapshot) {
-    const topLevel = Array.isArray(snapshot.transactions) ? snapshot.transactions.length : 0;
-    const nested = (snapshot.categories || []).reduce((sum, category) => {
-      return sum + (Array.isArray(category?.transactions) ? category.transactions.length : 0);
-    }, 0);
-
-    return Math.max(topLevel, nested);
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.countTransactions(snapshot) : 0;
   }
 
   function countBudgets(snapshot) {
-    if (Array.isArray(snapshot.budgets)) {
-      return snapshot.budgets.length;
-    }
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.countBudgets(snapshot) : 0;
+  }
 
-    if (snapshot.budgets && typeof snapshot.budgets === 'object') {
-      return Object.keys(snapshot.budgets).length;
-    }
+  function hasForbiddenKeys(value) {
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.hasForbiddenKeys(value) : false;
+  }
 
-    return 0;
+  function isValidImportAmount(amount) {
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.isValidImportAmount(amount) : false;
+  }
+
+  function isValidImportDate(value) {
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.isValidImportDate(value) : false;
+  }
+
+  function isValidImportString(value) {
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.isValidImportString(value) : false;
+  }
+
+  function validateImportPayload(state) {
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.validateImportPayload(state) : false;
+  }
+
+  function normalizeImportPayload(parsed) {
+    return window.ConfiguracionBackup ? window.ConfiguracionBackup.normalizeImportPayload(parsed, sanitizeSettings) : null;
   }
 
   async function onExportBackup() {
-    if (!store) return;
-
-    try {
-      const loaded = await store.load();
-      state.snapshot = normalizeState(loaded);
-
-      const payload = {
-        version: 1,
-        exportedAt: new Date().toISOString(),
+    if (window.ConfiguracionBackup) {
+      await window.ConfiguracionBackup.exportBackup({
+        store,
         settings: state.settings,
-        state: state.snapshot
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const now = new Date();
-      const filename = `finanzapp-respaldo-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}.json`;
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-
-      localStorage.setItem(LAST_BACKUP_KEY, payload.exportedAt);
+        onStatus: (msg, type) => setStatus(elements.backupStatus, msg, type),
+        showToast: (msg, type) => {
+          if (typeof window._configMostrarToast === 'function') {
+            window._configMostrarToast(msg, type);
+          } else if (window.Toast?.show) {
+            window.Toast.show(msg, type);
+          }
+        }
+      });
       refreshBackupMeta();
-      // Mostrar toast en lugar de mensaje en la UI de estado
-      if (typeof window._configMostrarToast === 'function') {
-        window._configMostrarToast('Respaldo exportado correctamente.', 'success');
-      } else {
-        setStatus(elements.backupStatus, 'Respaldo exportado correctamente.', 'success');
-      }
-    } catch (error) {
-      console.error('Error exportando respaldo:', error);
-      setStatus(elements.backupStatus, 'No se pudo exportar el respaldo.', 'error');
     }
   }
 
@@ -945,248 +623,65 @@
     if (!file) return;
 
     try {
-      if (file.size > MAX_IMPORT_FILE_SIZE) {
-        throw new Error('El archivo de respaldo es demasiado grande.');
+      if (window.ConfiguracionBackup) {
+        await window.ConfiguracionBackup.importBackup({
+          file,
+          store,
+          state,
+          defaultSettings: DEFAULT_SETTINGS,
+          confirmAction,
+          persistSettings,
+          applyTheme: (theme) => window.BasePage.applyTheme(theme, true),
+          applySettingsToForm,
+          updateFormatPreview,
+          refreshDataSummary,
+          onStatus: (msg, type) => setStatus(elements.backupStatus, msg, type),
+          showToast: (msg, type) => {
+            if (typeof window._configMostrarToast === 'function') {
+              window._configMostrarToast(msg, type);
+            } else if (window.Toast?.show) {
+              window.Toast.show(msg, type);
+            }
+          },
+          sanitizeSettingsFn: sanitizeSettings
+        });
       }
-
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      const payload = normalizeImportPayload(parsed);
-
-      if (!payload) {
-        throw new Error('Formato de respaldo invalido.');
-      }
-
-      const result = await confirmAction(
-        'Importar respaldo',
-        'Esta accion reemplazara tus datos actuales por los del archivo seleccionado.',
-        { emphasis: 'danger' }
-      );
-
-      if (result !== 'confirm') {
-        return;
-      }
-
-      if (!store) {
-        throw new Error('No hay almacenamiento disponible para importar datos.');
-      }
-
-      await store.save(payload.state);
-      state.snapshot = payload.state;
-
-      try {
-        localStorage.setItem('categories', JSON.stringify(payload.state.categories || []));
-        localStorage.setItem('transactions', JSON.stringify(payload.state.transactions || []));
-        localStorage.setItem('finanzapp:budgets', JSON.stringify(payload.state.budgets || {}));
-        localStorage.setItem('budgets', JSON.stringify(payload.state.budgets || {}));
-      } catch (e) {
-        console.warn('Error writing to root localStorage for import:', e);
-      }
-
-      if (payload.settings) {
-        state.settings = { ...DEFAULT_SETTINGS, ...payload.settings };
-        persistSettings();
-        applyTheme(state.settings.theme, true);
-        applySettingsToForm();
-        updateFormatPreview();
-      }
-
-      localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString());
-      refreshBackupMeta();
-      await refreshDataSummary();
-
-      setStatus(elements.backupStatus, 'Respaldo importado y aplicado correctamente.', 'success');
-    } catch (error) {
-      console.error('Error importando respaldo:', error);
-      setStatus(elements.backupStatus, 'No se pudo importar el respaldo. Verifica el archivo.', 'error');
     } finally {
       event.target.value = '';
     }
   }
 
-  function normalizeImportPayload(parsed) {
-    if (!parsed || typeof parsed !== 'object' || hasForbiddenKeys(parsed)) return null;
-
-    const sourceState = parsed.state && typeof parsed.state === 'object'
-      ? parsed.state
-      : parsed;
-
-    if (!sourceState || hasForbiddenKeys(sourceState)) return null;
-
-    const normalizedState = normalizeState(sourceState);
-
-    if (!validateImportPayload(normalizedState)) return null;
-
-    const hasData =
-      normalizedState.transactions.length > 0 ||
-      normalizedState.categories.length > 0 ||
-      countBudgets(normalizedState) > 0;
-
-    if (!hasData && !parsed.state) {
-      return null;
-    }
-
-    const settings = parsed.settings ? sanitizeSettings(parsed.settings) : null;
-
-    return {
-      state: normalizedState,
-      settings
-    };
-  }
-
   async function onClearData() {
-    const result = await confirmAction(
-      'Reiniciar datos financieros',
-      'Se eliminaran todas tus categorias y presupuestos. Esta accion no se puede deshacer.',
-      { emphasis: 'danger' }
-    );
-
-    if (result !== 'confirm') return;
-
-    try {
-      if (!store) {
-        throw new Error('No se pudo acceder al almacenamiento para borrar datos.');
-      }
-
-      const emptyState = {
-        transactions: [],
-        categories: [],
-        budgets: {}
-      };
-
-      // Guardar estado vacio via DataStore (local + Firestore si hay sesion)
-      await store.save(emptyState);
-      state.snapshot = emptyState;
-
-      // Asegurar persistencia en Firestore directamente, incluso si DataStore.save
-      // no pudo sincronizar por falta de sesion inicial (race con waitForAuth).
-      // IMPORTANTE: borrar también las subcolecciones antiguas `transactions` y
-      // `categories` que FirestoreDB.loadAll rescata automáticamente si el
-      // documento principal queda vacío. Sin borrarlas, los 95 transacciones
-      // y 12 categorías vuelven a aparecer tras el reinicio.
-      try {
-        if (window.FirestoreDB && window.firebase) {
-          if (!window.FirestoreDB.initialized || !window.FirestoreDB.currentUserId) {
-            try {
-              const uid = await window.FirestoreDB.waitForAuth(3000);
-              if (uid) {
-                await window.FirestoreDB.init(uid);
-                window.FirestoreDB.setCurrentUser(uid);
-              }
-            } catch {}
-          }
-          if (window.FirestoreDB.initialized && window.FirestoreDB.currentUserId && window.FirestoreDB.db) {
-            const userRef = window.FirestoreDB._userDoc();
-            // Borrar subcolecciones legacy que causan el rescate
-            try {
-              const txSnap = await userRef.collection('transactions').get();
-              const catSnap = await userRef.collection('categories').get();
-              const allDocs = [...(txSnap.docs || []), ...(catSnap.docs || [])];
-              if (allDocs.length > 0) {
-                // Firestore limita a 500 ops por batch
-                const chunks = [];
-                for (let i = 0; i < allDocs.length; i += 450) chunks.push(allDocs.slice(i, i + 450));
-                for (const chunk of chunks) {
-                  const batch = window.FirestoreDB.db.batch();
-                  chunk.forEach(d => batch.delete(d.ref));
-                  await batch.commit();
-                }
-                console.log('[Configuracion] Subcolecciones antiguas borradas:', allDocs.length, 'docs');
-              }
-            } catch (e) {
-              console.warn('[Configuracion] No se pudieron borrar subcolecciones:', e);
-            }
-            await window.FirestoreDB.saveAll(emptyState);
+    if (window.ConfiguracionBackup) {
+      await window.ConfiguracionBackup.clearData({
+        store,
+        state,
+        confirmAction,
+        refreshDataSummary,
+        onStatus: (msg, type) => setStatus(elements.backupStatus, msg, type),
+        showToast: (msg, type) => {
+          if (typeof window._configMostrarToast === 'function') {
+            window._configMostrarToast(msg, type);
+          } else if (window.Toast?.show) {
+            window.Toast.show(msg, type);
           }
         }
-      } catch (e) {
-        console.warn('[Configuracion] No se pudo limpiar Firestore directamente:', e);
-      }
-
-      // Limpieza exhaustiva de localStorage: borrar TODAS las variantes
-      // prefijadas por usuario y claves legacy, para evitar que boot() de
-      // Categorias re-hidrate datos antiguos o vuelva a sembrar defaults.
-      try {
-        const prefix = 'finanzapp:data:v1';
-        // Recoger todos los uids que aparecen en localStorage
-        const uids = new Set();
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (!k || !k.startsWith(prefix + ':')) continue;
-          const parts = k.split(':');
-          // formato: finanzapp:data:v1:{uid}:categories|transactions|budgets
-          if (parts.length >= 4) {
-            const uid = parts.slice(3, parts.length - 1).join(':');
-            if (uid) uids.add(uid);
-          }
-        }
-        // Incluir tambien uid actual por si no habia claves aún
-        try {
-          const raw = localStorage.getItem('authUser');
-          if (raw && raw !== 'guest') {
-            const u = JSON.parse(raw);
-            const cur = u.uid || u.email || 'guest';
-            if (cur) uids.add(cur);
-          } else {
-            uids.add('guest');
-          }
-        } catch { uids.add('guest'); }
-
-        uids.forEach(uid => {
-          try {
-            localStorage.setItem(`${prefix}:${uid}:categories`, '[]');
-            localStorage.setItem(`${prefix}:${uid}:transactions`, '[]');
-            localStorage.setItem(`${prefix}:${uid}:budgets`, '{}');
-          } catch {}
-        });
-
-        // Claves legacy / fallback que usan Presupuestos/Categorias
-        localStorage.setItem('categories', '[]');
-        localStorage.setItem('transactions', '[]');
-        localStorage.setItem('budgets', '{}');
-        localStorage.setItem('finanzapp:budgets', JSON.stringify([]));
-        // Tambien limpiar posibles objetos sueltos
-        try { localStorage.removeItem('finanzapp:budgets:backup'); } catch {}
-      } catch (e) {}
-
-      // Notificar a las demas paginas / pestañas que los datos fueron reiniciados
-      try {
-        window.dispatchEvent(new CustomEvent('finanzapp:data:updated', { detail: emptyState }));
-        if (window.DataEvents && typeof window.DataEvents.emit === 'function') {
-          window.DataEvents.emit('datos:actualizados', emptyState);
-          window.DataEvents.emit('transactionChanged', { action: 'clearAll' });
-        }
-      } catch {}
-
-      await refreshDataSummary();
-      if (typeof window._configMostrarToast === 'function') {
-        window._configMostrarToast('Categorias y presupuestos eliminados correctamente.', 'success');
-      } else {
-        setStatus(elements.backupStatus, 'Categorias y presupuestos eliminados correctamente.', 'success');
-      }
-    } catch (error) {
-      console.error('Error reiniciando datos:', error);
-      setStatus(elements.backupStatus, 'No fue posible reiniciar los datos.', 'error');
+      });
     }
   }
-
-  
 
   function refreshBackupMeta() {
     if (!elements.backupMeta) return;
-
     const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
     if (!lastBackup) {
       elements.backupMeta.textContent = 'Sin respaldo exportado en esta sesion.';
       return;
     }
-
     const date = new Date(lastBackup);
     if (Number.isNaN(date.getTime())) {
       elements.backupMeta.textContent = 'Sin respaldo exportado en esta sesion.';
       return;
     }
-
     elements.backupMeta.textContent = `Ultimo respaldo: ${date.toLocaleString('es-ES')}`;
   }
 
@@ -1219,85 +714,12 @@
     }
   }
 
-  (function () {
-    let _toastContainer = null;
-    function _getToastContainer() {
-      if (!_toastContainer) {
-        _toastContainer = document.createElement('div');
-        _toastContainer.className = 'toast-container';
-        document.body.appendChild(_toastContainer);
-      }
-      return _toastContainer;
+  window._configMostrarToast = function (message, variant, duration = 5000) {
+    if (window.__appTooltips === false) return;
+    if (window.Toast) {
+      window.Toast.show(message, variant || 'success', duration);
     }
-    function _hideToast(toast) {
-      if (!toast) return;
-      if (toast._t) { clearTimeout(toast._t); toast._t = null; }
-      toast.classList.remove('show');
-      toast.classList.add('hide');
-      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
-    }
-    window._configMostrarToast = function (message, variant, duration = 5000) {
-      if (window.__appTooltips === false) return;
-      const container = _getToastContainer();
-      
-      // Limpiar toasts anteriores para no acumular mensajes
-      Array.from(container.children).forEach(child => {
-        if (child._t) { clearTimeout(child._t); child._t = null; }
-        if (child.parentNode) child.parentNode.removeChild(child);
-      });
-
-      const toast = document.createElement('div');
-      toast.className = 'toast toast-' + (variant || 'success');
-      toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
-      toast.setAttribute('aria-live', variant === 'error' ? 'assertive' : 'polite');
-      toast.setAttribute('aria-atomic', 'true');
-      const content = document.createElement('div');
-      content.className = 'toast-content';
-      content.textContent = String(message ?? '');
-      const btn = document.createElement('button');
-      btn.className = 'toast-close';
-      btn.setAttribute('aria-label', 'Cerrar');
-      btn.innerHTML = '&times;';
-      btn.onclick = () => _hideToast(toast);
-      toast.append(content, btn);
-      container.appendChild(toast);
-      requestAnimationFrame(() => toast.classList.add('show'));
-      toast._t = setTimeout(() => _hideToast(toast), duration);
-    };
-  })();
-
-  async function handleLogout() {
-    const result = await confirmAction(
-      'Cerrar Sesión',
-      '¿Estás seguro de que deseas cerrar sesión?',
-      { emphasis: 'danger' }
-    );
-
-    if (result !== 'confirm') return;
-
-    try {
-      sessionStorage.setItem('finanzapp:logged_out', '1');
-      localStorage.setItem('logoutTimestamp', Date.now().toString());
-
-      if (window.firebaseAuth && typeof window.firebaseAuth.logout === 'function') {
-        await window.firebaseAuth.logout();
-      } else if (window.firebase && typeof window.firebase.auth === 'function') {
-        try {
-          await window.firebase.auth().signOut();
-        } catch (e) {
-          console.warn('Error en signOut de Firebase:', e);
-        }
-      }
-    } catch (err) {
-      console.error('Error durante el cierre de sesión:', err);
-    } finally {
-      sessionStorage.setItem('finanzapp:logged_out', '1');
-      localStorage.setItem('logoutTimestamp', Date.now().toString());
-      localStorage.removeItem('loggedIn');
-      localStorage.removeItem('authUser');
-      window.location.replace('/pages/Login/Login.html?logout=true');
-    }
-  }
+  };
 
   function confirmAction(title, message, options = {}) {
     if (typeof window.showAlert === 'function') {
@@ -1353,83 +775,25 @@
   }
 
   function getProfile() {
-    try {
-      if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
-        const u = window.firebase.auth().currentUser;
-        if (u) {
-          return {
-            name: u.displayName || u.email?.split('@')[0] || 'Usuario',
-            email: u.email || '',
-            uid: u.uid,
-            picture: u.photoURL || u.providerData?.[0]?.photoURL || '',
-            photoURL: u.photoURL || u.providerData?.[0]?.photoURL || '',
-            provider: u.providerData?.[0]?.providerId || 'google'
-          };
-        }
-      }
-    } catch {}
-
+    if (typeof window !== 'undefined' && window.AuthService) {
+      const u = window.AuthService.getUser();
+      if (u) return u;
+    }
+    if (window.ProfileSync?.getUserData) {
+      return window.ProfileSync.getUserData();
+    }
     try {
       const raw = localStorage.getItem('authUser');
-      if (!raw || raw === 'guest') {
-        return { name: 'Invitado', email: '', uid: 'guest', provider: 'guest' };
-      }
-
-      const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object'
-        ? parsed
-        : { name: 'Usuario', email: '', uid: 'guest', provider: 'local' };
+      return (raw && raw !== 'guest') ? JSON.parse(raw) : { name: 'Invitado', email: '', uid: 'guest', provider: 'guest' };
     } catch {
       return { name: 'Usuario', email: '', uid: 'guest', provider: 'local' };
     }
   }
 
   function renderAvatar(container, name, pictureUrl) {
-    if (!container) return;
-
-    container.innerHTML = '';
-    const isSafeUrl = pictureUrl && typeof pictureUrl === 'string' &&
-      (pictureUrl.startsWith('http://') || pictureUrl.startsWith('https://') || pictureUrl.startsWith('data:') || pictureUrl.startsWith('/')) &&
-      !pictureUrl.toLowerCase().startsWith('file:');
-
-    if (isSafeUrl) {
-      const img = document.createElement('img');
-      img.src = pictureUrl;
-      img.alt = name || 'Usuario';
-      img.onerror = () => {
-        container.innerHTML = '';
-        container.textContent = (name || 'Invitado').trim().charAt(0).toUpperCase() || 'I';
-      };
-      container.appendChild(img);
-      return;
+    if (window.ProfileSync?.renderAvatar) {
+      window.ProfileSync.renderAvatar(container, name, pictureUrl);
     }
-
-    const initial = (name || 'Invitado').trim().charAt(0).toUpperCase();
-    container.textContent = initial || 'I';
-  }
-
-  function initProfileTooltip() {
-    const userInfo = document.getElementById('userInfoHover') || document.querySelector('.sidebar .user-info');
-    const tooltip = document.getElementById('profileTooltip');
-    if (!userInfo || !tooltip) return;
-
-    let hideTimeout;
-
-    function showTooltip() {
-      clearTimeout(hideTimeout);
-      tooltip.classList.add('show');
-    }
-
-    function hideTooltip() {
-      hideTimeout = setTimeout(() => {
-        tooltip.classList.remove('show');
-      }, 180);
-    }
-
-    userInfo.addEventListener('mouseenter', showTooltip);
-    userInfo.addEventListener('mouseleave', hideTooltip);
-    tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-    tooltip.addEventListener('mouseleave', hideTooltip);
   }
 
   /**

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
@@ -31,49 +31,40 @@
   <link rel="icon" href="/Icons/favicon.ico?v=2026090206" sizes="any" />
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png?v=2026090206" />
 
-  
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
   <script src="/lib/lucide/lucide.min.js"></script>
   <script src="/lib/LucideIcons.js"></script>
 
-  <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=202511120001">
-  <link rel="stylesheet" href="/lib/UI.css?v=20260505">
+  <link rel="stylesheet" href="/lib/core/core.css">
+  <link rel="stylesheet" href="/lib/toast.css">
+  <link rel="stylesheet" href="/lib/shared-mobile-nav.css">
+  <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
   <link rel="stylesheet" href="/pages/Estadistica/Estadistica.css?v=20260510b">
-  <link rel="stylesheet" href="/pages/Estadistica/styles/tema-oscuro.css?v=20260118" id="dark-css">
   <link rel="stylesheet" href="/pages/Estadistica/styles/tema-claro.css?v=20260118" id="light-css">
   <link rel="stylesheet" href="/pages/Estadistica/styles/mobile-nav.css?v=2026051001">
 
-  <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
-  <script>
-    (function () {
-      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
-      Object.defineProperty(Element.prototype, 'innerHTML', {
-        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
-        get: _d.get,
-        configurable: true,
-      });
-    })();
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
-  
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
   <script src="/__config.js"></script>
-  <script src="/lib/FirestoreDB.js?v=202511120001"></script>
-  
-  <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
-  <script src="/lib/Debug.js?v=202511120001"></script>
-  <script src="/lib/Events.js?v=202511120001"></script>
-  <script src="/lib/UI.js?v=20260505"></script>
-  <script src="/lib/Helpers.js?v=202605170002"></script>
-  <script src="/lib/DataStore.js?v=202511120001"></script>
-  <script src="/lib/BasePage.js?v=20260601"></script>
+
+  <script src="/lib/Logger.js"></script>
+  <script src="/lib/Constants.js"></script>
+  <script src="/lib/AuthService.js"></script>
+  <script src="/lib/FirestoreDB.js?v=1788099418340"></script>
+  <script src="/lib/Events.js?v=1788099418340"></script>
+  <script src="/lib/UI.js?v=1788099418340"></script>
+  <script src="/lib/Toast.js"></script>
+  <script src="/lib/ModalManager.js"></script>
+  <script src="/lib/DatePicker.js"></script>
+  <script src="/lib/ProfileSync.js"></script>
+  <script src="/lib/Helpers.js?v=1788099418340"></script>
+  <script src="/lib/DataStore.js?v=1788099418340"></script>
+  <script src="/lib/BasePage.js?v=1788099418340"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script src="/lib/sidebarRenderer.js"></script>
 </head>
 <body class="estadistica-page">
@@ -94,7 +85,7 @@
           <i data-lucide="wallet"></i>
           <span>Presupuestos</span>
         </a>
-        <a href="Estadistica.html" class="nav-item active">
+        <a href="Estadistica.html" class="nav-item active" aria-current="page">
           <i data-lucide="pie-chart"></i>
           <span>Estadísticas</span>
         </a>
@@ -181,6 +172,7 @@
                 <i data-lucide="chevron-down"></i>
               </div>
               <div class="custom-dropdown-options">
+                <div class="custom-dropdown-option selected" data-value="">Todos los meses</div>
                 <div class="custom-dropdown-option" data-value="0">Enero</div>
                 <div class="custom-dropdown-option" data-value="1">Febrero</div>
                 <div class="custom-dropdown-option" data-value="2">Marzo</div>
@@ -338,198 +330,11 @@
 
   
 
-  <script>
-    (function () {
-      const dropdown = document.getElementById('mobileActionsDropdown');
-      const toggle = document.getElementById('mobileActionsToggle');
-      const panel = document.getElementById('mobileActionsPanel');
-      if (!dropdown || !toggle || !panel) return;
-      const closeBtn = document.getElementById('mobileActionsClose');
-      const backdrop = document.getElementById('mobileDrawerBackdrop');
-
-      const mobileName = document.getElementById('mobileDrawerName');
-      const mobileEmail = document.getElementById('mobileDrawerEmail');
-      const mobileAvatar = document.getElementById('mobileDrawerAvatar');
-
-      const syncDrawerProfile = function () {
-        try {
-          const raw = localStorage.getItem('authUser');
-          const profile = raw && raw !== 'guest' ? JSON.parse(raw) : {};
-          const fallbackName = document.querySelector('.sidebar .user-name')?.textContent?.trim() || '';
-          const fallbackEmail = document.querySelector('.sidebar .user-email')?.textContent?.trim() || '';
-
-          const displayName = profile.name || profile.displayName || fallbackName || 'Invitado';
-          const displayEmail = profile.email || fallbackEmail || '';
-          const picture = profile.picture || profile.photoURL || '';
-
-          if (mobileName) mobileName.textContent = displayName;
-          if (mobileEmail) {
-            mobileEmail.textContent = displayEmail || 'Sin correo';
-            mobileEmail.style.display = 'block';
-          }
-
-          if (mobileAvatar) {
-            mobileAvatar.innerHTML = '';
-            if (picture) {
-              const img = document.createElement('img');
-              img.src = picture;
-              img.alt = displayName;
-              mobileAvatar.appendChild(img);
-            } else {
-              mobileAvatar.textContent = (displayName || 'Invitado').trim().charAt(0).toUpperCase();
-            }
-          }
-        } catch (_) {}
-      };
-
-      syncDrawerProfile();
-
-      const subpanel = document.createElement('div');
-      subpanel.id = 'mobileActionsSubpanel';
-      subpanel.className = 'mobile-actions-subpanel';
-      panel.appendChild(subpanel);
-      let activeSubmenuAction = null;
-
-      const clearSubpanel = function () {
-        subpanel.classList.remove('open');
-        subpanel.classList.remove('is-month');
-        subpanel.innerHTML = '';
-        activeSubmenuAction = null;
-        if (subpanel.parentElement !== panel) {
-          panel.appendChild(subpanel);
-        }
-        syncActiveFilters();
-      };
-
-      const openInlineSubpanel = function (actionKey, anchorBtn, renderContent) {
-        if (!anchorBtn) return;
-        if (activeSubmenuAction === actionKey && subpanel.classList.contains('open')) {
-          clearSubpanel();
-          return;
-        }
-
-        clearSubpanel();
-        renderContent();
-        anchorBtn.insertAdjacentElement('afterend', subpanel);
-        subpanel.classList.add('open');
-        activeSubmenuAction = actionKey;
-        syncActiveFilters();
-      };
-
-      const syncActiveFilters = function () {
-        if (!panel) return;
-        const yearVal = document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-        const monthVal = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-
-        const yearBtn = panel.querySelector('[data-action="year"]');
-        const monthBtn = panel.querySelector('[data-action="month"]');
-
-        if (yearBtn) yearBtn.classList.toggle('filter-active', yearVal !== '' || activeSubmenuAction === 'year');
-        if (monthBtn) monthBtn.classList.toggle('filter-active', monthVal !== '' || activeSubmenuAction === 'month');
-      };
-
-      const filterObserver = new MutationObserver(syncActiveFilters);
-      ['yearFilter', 'monthFilter'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) filterObserver.observe(el, { attributes: true, childList: true, subtree: true });
-      });
-
-      const closePanel = function () {
-        dropdown.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        clearSubpanel();
-      };
-
-      const openOptionsSubmenu = function (dropdownId, actionKey, anchorBtn) {
-        const dropdownEl = document.getElementById(dropdownId);
-        const selectedEl = dropdownEl?.querySelector('.custom-dropdown-selected');
-        const options = dropdownEl?.querySelectorAll('.custom-dropdown-option');
-        if (!dropdownEl || !selectedEl || !options?.length) return;
-
-        openInlineSubpanel(actionKey, anchorBtn, function () {
-          const currentValue = selectedEl.getAttribute('data-value') || '';
-          subpanel.innerHTML = '';
-          subpanel.classList.toggle('is-month', dropdownId === 'monthFilter');
-
-          options.forEach(function (opt) {
-            const value = opt.getAttribute('data-value') || '';
-            const text = (opt.textContent || '').trim();
-            if (value === '' || text.toLowerCase().startsWith('todos')) return;
-
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'mobile-actions-option' + (value === currentValue ? ' active' : '');
-            item.textContent = text;
-            item.addEventListener('click', function () {
-              opt.click();
-              closePanel();
-            });
-            subpanel.appendChild(item);
-          });
-        });
-      };
-
-      toggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-        syncDrawerProfile();
-        syncActiveFilters();
-        dropdown.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', dropdown.classList.contains('open') ? 'true' : 'false');
-      });
-
-      closeBtn?.addEventListener('click', function (e) {
-        e.stopPropagation();
-        closePanel();
-      });
-
-      const handleBackdropClose = function (e) {
-        if (e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        closePanel();
-      };
-
-      if (backdrop) {
-        backdrop.addEventListener('click', handleBackdropClose);
-        backdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
-      }
-
-      panel.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const btn = e.target.closest('[data-action]');
-        if (!btn) return;
-        const action = btn.getAttribute('data-action');
-
-        if (action === 'year') {
-          openOptionsSubmenu('yearFilter', 'year', btn);
-        } else if (action === 'month') {
-          openOptionsSubmenu('monthFilter', 'month', btn);
-        } else if (action === 'clear') {
-          document.getElementById('clearFiltersBtn')?.click();
-          clearSubpanel();
-          closePanel();
-        } else if (action === 'theme') {
-          document.getElementById('themeToggle')?.click();
-          closePanel();
-        } else if (action === 'logout') {
-          document.getElementById('logoutButton')?.click();
-          closePanel();
-        }
-      });
-
-      document.addEventListener('click', function (e) {
-        if (dropdown.classList.contains('open') && !dropdown.contains(e.target) && !e.target.closest('.custom-dropdown')) {
-          closePanel();
-        }
-      });
-
-      window.addEventListener('scroll', closePanel, { passive: true });
-    })();
-  </script>
+  <script src="/pages/Estadistica/EstadisticaMobileDrawer.js"></script>
 
   <script src="/lib/SyncAPI.js?v=2026090101"></script>
+  <script src="/pages/Estadistica/EstadisticaKPIs.js"></script>
+  <script src="/pages/Estadistica/EstadisticaCharts.js"></script>
   <script src="/pages/Estadistica/Estadistica.js?v=20260325g"></script>
 </body>
 </html>
-

@@ -4,15 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "build": "node scripts/build.js",
+    "build:vite": "vite build",
     "serve": "npm run build && npx -y firebase-tools emulators:start",
     "deploy": "npm run build && npx -y firebase-tools deploy",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -p jsconfig.json"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "css-tree": "^3.2.1",
     "dotenv": "^16.4.5",
     "entities": "^8.1.0",
     "happy-dom": "^20.14.3",
+    "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"
   },

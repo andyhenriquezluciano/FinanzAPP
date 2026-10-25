@@ -55,6 +55,48 @@
       this._renderDesktopNav();
       this._renderMobileNav();
       this._refreshIcons();
+      this._initProfileTooltip();
+    }
+
+    _initProfileTooltip() {
+      const userInfo = document.getElementById('userInfoHover') || document.querySelector('.sidebar .user-info');
+      const tooltip = document.getElementById('profileTooltip');
+      const tooltipName = tooltip?.querySelector('.tooltip-name');
+      const tooltipEmail = tooltip?.querySelector('.tooltip-email');
+
+      if (!userInfo || !tooltip || userInfo._profileTooltipBound) return;
+      userInfo._profileTooltipBound = true;
+
+      let hideTimeout;
+
+      function showTooltip() {
+        clearTimeout(hideTimeout);
+
+        let profile = { name: 'Invitado', email: '' };
+        try {
+          const raw = localStorage.getItem('authUser');
+          if (raw && raw !== 'guest') profile = JSON.parse(raw);
+        } catch (_) {}
+
+        if (tooltipName) tooltipName.textContent = profile.name || 'Usuario';
+        if (tooltipEmail) {
+          tooltipEmail.textContent = profile.email || '';
+          tooltipEmail.style.display = (profile.email && profile.email !== '') ? 'block' : 'none';
+        }
+
+        tooltip.classList.add('show');
+      }
+
+      function hideTooltip() {
+        hideTimeout = setTimeout(() => {
+          tooltip.classList.remove('show');
+        }, 200);
+      }
+
+      userInfo.addEventListener('mouseenter', showTooltip);
+      userInfo.addEventListener('mouseleave', hideTooltip);
+      tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+      tooltip.addEventListener('mouseleave', hideTooltip);
     }
 
     _renderDesktopNav() {

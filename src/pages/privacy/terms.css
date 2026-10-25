@@ -175,9 +175,15 @@ nav {
   align-items: center;
   justify-content: center;
   margin: 0 auto 24px;
-  font-size: 30px;
   color: #fff;
   box-shadow: 0 8px 32px rgba(246,193,119,0.25);
+}
+.hero-icon svg,
+.hero-icon i,
+.hero-icon .lucide {
+  width: 38px !important;
+  height: 38px !important;
+  stroke-width: 2.2;
 }
 .hero h1 {
   font-size: 2.2rem;

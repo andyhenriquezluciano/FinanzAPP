@@ -1,9 +1,4 @@
-/**
- * @fileoverview Módulo de exportación para FinanzApp (JSON, PDF ejecutivo, CSV/Excel).
- *
- * Extrae y centraliza la generación y descarga de reportes financieros para aligerar
- * el controlador principal de Categorias.js.
- */
+// @fileoverview Módulo de exportación para FinanzApp (JSON, PDF ejecutivo, CSV/Excel).
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -18,32 +13,29 @@
   }
 })(typeof self !== 'undefined' ? self : this, function () {
 
-  /**
-   * Extrae y sanitiza el nombre del usuario autenticado desde localStorage,
-   * dejándolo listo para usarse en nombres de archivo exportados.
-   * @returns {string}
-   */
+  // Extrae y sanitiza el nombre del usuario autenticado desde localStorage,
   function obtenerNombreArchivoUsuario() {
-    const rawAuth = (typeof localStorage !== 'undefined' && localStorage.getItem('authUser')) || 'guest';
-    let nombre;
-    if (!rawAuth || rawAuth === 'guest') {
-      nombre = 'Invitado';
+    let nombre = 'Usuario';
+    if (typeof window !== 'undefined' && window.AuthService) {
+      const u = window.AuthService.getUser();
+      nombre = String(u?.name || u?.displayName || u?.email || 'Usuario').trim();
     } else {
-      try {
-        const parsed = JSON.parse(rawAuth);
-        nombre = String(parsed?.name || parsed?.displayName || parsed?.email || 'Usuario').trim();
-      } catch {
-        nombre = 'Usuario';
+      const rawAuth = (typeof localStorage !== 'undefined' && localStorage.getItem('authUser')) || 'guest';
+      if (!rawAuth || rawAuth === 'guest') {
+        nombre = 'Invitado';
+      } else {
+        try {
+          const parsed = JSON.parse(rawAuth);
+          nombre = String(parsed?.name || parsed?.displayName || parsed?.email || 'Usuario').trim();
+        } catch {
+          nombre = 'Usuario';
+        }
       }
     }
     return nombre.replace(/\s+/g, '').replace(/[^\wÁÉÍÓÚÑáéíóúñ-]/g, '') || 'Usuario';
   }
 
-  /**
-   * Descarga un Blob como archivo en el navegador del usuario.
-   * @param {Blob} blob 
-   * @param {string} fileName 
-   */
+  // Descarga un Blob como archivo en el navegador del usuario.
   function descargarBlob(blob, fileName) {
     if (typeof document === 'undefined') return;
     const enlaceDescarga = document.createElement('a');
@@ -55,11 +47,7 @@
     enlaceDescarga.remove();
   }
 
-  /**
-   * Serializa todos los datos del usuario a JSON y los descarga como archivo de respaldo.
-   * @param {Object} [datos] - Estructura datosUsuario
-   * @param {Function} [notifySuccess]
-   */
+  // Serializa todos los datos del usuario a JSON y los descarga como archivo de respaldo.
   function exportarAJSON(datos, notifySuccess) {
     const fnSuccess = notifySuccess || (typeof window !== 'undefined' && window.mostrarExito) || console.log;
     const datosBase = datos || (typeof window !== 'undefined' && window.datosUsuario) || { categories: [] };
@@ -86,11 +74,7 @@
     }
   }
 
-  /**
-   * Genera un PDF ejecutivo con el resumen financiero y el detalle de transacciones filtradas.
-   * Requiere jsPDF disponible en `window`.
-   * @param {Object} [options]
-   */
+  // Genera un PDF ejecutivo con el resumen financiero y el detalle de transacciones filtradas.
   function exportarAPDF(options = {}) {
     const jsPDFClass = (typeof window !== 'undefined' && (window.jsPDF || window.jspdf?.jsPDF));
     const fnSuccess = options.mostrarExito || (typeof window !== 'undefined' && window.mostrarExito) || console.log;
@@ -163,13 +147,18 @@
 
       // Nombre de usuario
       let nombreUsuario = 'Usuario';
-      try {
-        const rawAuth = typeof localStorage !== 'undefined' ? localStorage.getItem('authUser') : null;
-        if (rawAuth && rawAuth !== 'guest') {
-          const parsed = JSON.parse(rawAuth);
-          nombreUsuario = parsed.name || parsed.displayName || 'Usuario';
-        }
-      } catch {}
+      if (typeof window !== 'undefined' && window.AuthService) {
+        const u = window.AuthService.getUser();
+        nombreUsuario = u?.name || u?.displayName || 'Usuario';
+      } else {
+        try {
+          const rawAuth = typeof localStorage !== 'undefined' ? localStorage.getItem('authUser') : null;
+          if (rawAuth && rawAuth !== 'guest') {
+            const parsed = JSON.parse(rawAuth);
+            nombreUsuario = parsed.name || parsed.displayName || 'Usuario';
+          }
+        } catch {}
+      }
 
       // ── 1. Banner Superior (Página 1) ──────────────────────────────────
       doc.setFillColor(31, 29, 46); // #1F1D2E
@@ -384,10 +373,177 @@
     }
   }
 
+  // Procesa e importa un archivo CSV o JSON actualizando la colección de datos.
+  async function importarArchivo({ file, datosUsuario, onDataUpdated, mostrarExito, mostrarError, generarId, normalizarId }) {
+    if (!file) return;
+    const fnExito = mostrarExito || (typeof window !== 'undefined' && window.mostrarExito) || console.log;
+    const fnError = mostrarError || (typeof window !== 'undefined' && window.mostrarError) || console.error;
+    const normId = normalizarId || (id => String(id));
+    const genId = generarId || (() => `tx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`);
+
+    try {
+      const text = await file.text();
+      const fileNameLower = (file.name || '').toLowerCase();
+      const isCsv = fileNameLower.endsWith('.csv') || file.type === 'text/csv' || (!text.trim().startsWith('{') && !text.trim().startsWith('['));
+
+      if (isCsv) {
+        if (!window.BankStatementImporter || typeof window.BankStatementImporter.parseStatement !== 'function') {
+          throw new Error('El módulo de importación bancaria no está disponible.');
+        }
+
+        const parseResult = window.BankStatementImporter.parseStatement(text, datosUsuario.categories);
+        if (!parseResult.success) {
+          throw new Error(parseResult.error || 'No se pudo procesar el archivo bancario CSV.');
+        }
+
+        if (!parseResult.rows || parseResult.rows.length === 0) {
+          throw new Error('No se encontraron transacciones válidas en el archivo seleccionado.');
+        }
+
+        let addedCount = 0;
+        parseResult.rows.forEach(row => {
+          let targetCategory = datosUsuario.categories.find(c => normId(c.id) === normId(row.categoryId));
+          if (!targetCategory) {
+            targetCategory = datosUsuario.categories.find(c => (c.name || '').trim().toLowerCase() === (row.categoryName || '').trim().toLowerCase());
+          }
+          if (!targetCategory) {
+            targetCategory = datosUsuario.categories.find(c => row.type === 'income' ? c.fixedType === 'income' : c.fixedType !== 'income');
+          }
+          if (!targetCategory && datosUsuario.categories.length > 0) {
+            targetCategory = datosUsuario.categories[0];
+          }
+
+          if (targetCategory) {
+            if (!Array.isArray(targetCategory.transactions)) targetCategory.transactions = [];
+            targetCategory.transactions.push({
+              id: genId(),
+              description: row.description,
+              amount: row.amount,
+              type: row.type || (targetCategory.fixedType === 'income' ? 'income' : 'expense'),
+              date: row.date || new Date()
+            });
+            addedCount++;
+          }
+        });
+
+        if (addedCount === 0) {
+          throw new Error('No se pudo asociar ninguna transacción con las categorías existentes.');
+        }
+
+        if (typeof onDataUpdated === 'function') await onDataUpdated();
+
+        setTimeout(() => {
+          if (window.DataEvents) {
+            window.DataEvents.emit('dataImported', {
+              categoriesCount: datosUsuario.categories.length,
+              transactionsAdded: addedCount,
+              timestamp: Date.now()
+            });
+          }
+        }, 100);
+
+        fnExito(`Extracto bancario importado: ${addedCount} transacciones añadidas.`);
+        return;
+      }
+
+      const json = JSON.parse(text);
+      if (!json || (json.version !== undefined && json.version !== 1)) throw new Error('Versión incompatible');
+      if (!json) throw new Error('El archivo está vacío o no es un JSON válido');
+
+      const importedCategories = Array.isArray(json)
+        ? json
+        : (Array.isArray(json.categories)
+            ? json.categories
+            : (Array.isArray(json.state?.categories)
+                ? json.state.categories
+                : (Array.isArray(json.data?.categories) ? json.data.categories : null)));
+
+      if (!importedCategories) throw new Error('Formato inválido: debe contener categorías');
+
+      importedCategories.forEach(c => {
+        c.transactions = (c.transactions || []).map(t => ({
+          ...t,
+          date: (t.date && typeof t.date === 'string') ? new Date(t.date) : t.date
+        }));
+        if (typeof c.isPinned !== 'boolean') c.isPinned = false;
+      });
+
+      const rootTransactions = Array.isArray(json.transactions)
+        ? json.transactions
+        : (Array.isArray(json.state?.transactions)
+            ? json.state.transactions
+            : (Array.isArray(json.data?.transactions) ? json.data.transactions : []));
+
+      if (rootTransactions.length > 0) {
+        rootTransactions.forEach(t => {
+          const tDate = (t.date && typeof t.date === 'string') ? new Date(t.date) : (t.date || new Date());
+          const cat = importedCategories.find(c =>
+            String(c.id) === String(t.categoryId) ||
+            (t.categoryName && String(c.name).toLowerCase() === String(t.categoryName).toLowerCase()) ||
+            (t.categoryId && String(c.name).toLowerCase() === String(t.categoryId).toLowerCase())
+          );
+          if (cat) {
+            if (!cat.transactions) cat.transactions = [];
+            const exists = cat.transactions.some(ct => String(ct.id) === String(t.id));
+            if (!exists) {
+              cat.transactions.push({ ...t, date: tDate });
+            }
+          }
+        });
+      }
+
+      datosUsuario.categories = importedCategories;
+      if (json.user) datosUsuario.user = json.user;
+
+      const rawBudgets = json.budgets || json.state?.budgets || json.data?.budgets;
+      const importedBudgets = rawBudgets
+        ? (Array.isArray(rawBudgets) ? rawBudgets : (typeof rawBudgets === 'object' ? Object.values(rawBudgets) : null))
+        : null;
+
+      if (importedBudgets) {
+        datosUsuario.budgets = importedBudgets;
+        try {
+          localStorage.setItem('finanzapp:budgets', JSON.stringify(importedBudgets));
+          localStorage.setItem('budgets', JSON.stringify(importedBudgets));
+          if (window.FirestoreDB && typeof window.FirestoreDB.saveBudgets === 'function' && window.FirestoreDB.currentUserId) {
+            window.FirestoreDB.saveBudgets(importedBudgets).catch(() => {});
+          }
+        } catch {}
+      }
+
+      if (typeof onDataUpdated === 'function') await onDataUpdated();
+
+      setTimeout(() => {
+        if (window.DataEvents) {
+          window.DataEvents.emit('dataImported', { 
+            categoriesCount: datosUsuario.categories.length,
+            timestamp: Date.now()
+          });
+        }
+      }, 500);
+
+      fnExito('Datos importados correctamente.');
+    } catch (error) {
+      console.error('Error al importar archivo:', error);
+      let errorMessage = 'No se pudo importar el archivo. ';
+      if (error.message.includes('Unexpected token')) {
+        errorMessage += 'El archivo no tiene un formato JSON o CSV válido.';
+      } else if (error.message.includes('Versión incompatible')) {
+        errorMessage += 'La versión del archivo no es compatible.';
+      } else if (error.message.includes('Formato inválido')) {
+        errorMessage += 'El formato del archivo no es correcto. Debe contener un array de categorías o transacciones válidas.';
+      } else {
+        errorMessage += error.message || 'Verifica que el archivo sea un JSON o CSV válido.';
+      }
+      fnError(errorMessage);
+    }
+  }
+
   return {
     obtenerNombreArchivoUsuario,
     exportarAJSON,
-    exportarAPDF
+    exportarAPDF,
+    importarArchivo
   };
 });
 

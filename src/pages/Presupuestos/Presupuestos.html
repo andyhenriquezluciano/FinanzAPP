@@ -63,6 +63,7 @@
   <script src="/lib/Helpers.js?v=202605170002"></script>
   <script src="/lib/DataStore.js?v=20260820002"></script>
   <script src="/lib/BasePage.js?v=20260601"></script>
+  <script src="/lib/ProfileSync.js"></script>
 
   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
@@ -95,7 +96,7 @@
           <i data-lucide="layout-grid"></i>
           <span>Categorías</span>
         </a>
-        <a href="Presupuestos.html" class="nav-item active">
+        <a href="Presupuestos.html" class="nav-item active" aria-current="page">
           <i data-lucide="wallet"></i>
           <span>Presupuestos</span>
         </a>
@@ -333,10 +334,10 @@
   </div>
 
   <div id="alertOverlay" class="alert-overlay hidden"></div>
-  <div id="customAlert" class="custom-alert hidden" tabindex="-1">
-    <h3 id="alertTitle"></h3>
-    <p id="alertMessage"></p>
-    <div id="alertButtons">
+  <div id="customAlert" class="custom-alert hidden" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage" tabindex="-1">
+    <h3 class="custom-alert-title" id="alertTitle">Advertencia</h3>
+    <p class="custom-alert-message" id="alertMessage"></p>
+    <div class="custom-alert-buttons" id="alertButtons">
       <button id="alertConfirm" class="btn btn-primary">Aceptar</button>
     </div>
   </div>
@@ -410,227 +411,13 @@
     </a>
   </nav>
 
-  <script>
-    document.getElementById('mobileCreateAction')?.addEventListener('click', function () {
-      if (window.PresupuestosApp && typeof window.PresupuestosApp.abrirModalCrear === 'function') {
-        window.PresupuestosApp.abrirModalCrear();
-      } else {
-        const trigger = document.getElementById('addBudgetBtn');
-        if (trigger) {
-          trigger.click();
-        }
-      }
-    });
-
-    (function () {
-      const dropdown = document.getElementById('mobileActionsDropdown');
-      const toggle = document.getElementById('mobileActionsToggle');
-      const panel = document.getElementById('mobileActionsPanel');
-      if (!dropdown || !toggle || !panel) return;
-      const closeBtn = document.getElementById('mobileActionsClose');
-
-      const mobileName = document.getElementById('mobileDrawerName');
-      const mobileEmail = document.getElementById('mobileDrawerEmail');
-      const mobileAvatar = document.getElementById('mobileDrawerAvatar');
-
-      const syncDrawerProfile = function () {
-        try {
-          const raw = localStorage.getItem('authUser');
-          const profile = raw && raw !== 'guest' ? JSON.parse(raw) : {};
-          const fallbackName = document.querySelector('.sidebar .user-name')?.textContent?.trim() || '';
-          const fallbackEmail = document.querySelector('.sidebar .user-email')?.textContent?.trim() || '';
-
-          const displayName = profile.name || profile.displayName || fallbackName || 'Invitado';
-          const displayEmail = profile.email || fallbackEmail || '';
-          const picture = profile.picture || profile.photoURL || '';
-
-          if (mobileName) mobileName.textContent = displayName;
-          if (mobileEmail) {
-            mobileEmail.textContent = displayEmail || 'Sin correo';
-            mobileEmail.style.display = 'block';
-          }
-
-          if (mobileAvatar) {
-            mobileAvatar.innerHTML = '';
-            if (picture) {
-              const img = document.createElement('img');
-              img.src = picture;
-              img.alt = displayName;
-              mobileAvatar.appendChild(img);
-            } else {
-              mobileAvatar.textContent = (displayName || 'Invitado').trim().charAt(0).toUpperCase();
-            }
-          }
-        } catch (_) {
-        }
-      };
-
-      syncDrawerProfile();
-
-      const subpanel = document.createElement('div');
-      subpanel.id = 'mobileActionsSubpanel';
-      subpanel.className = 'mobile-actions-subpanel';
-      panel.appendChild(subpanel);
-      let activeSubmenuAction = null;
-
-      const syncActiveFilters = function () {
-        if (!panel) return;
-        const yearVal = document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-        const monthVal = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-        
-        const yearBtn = panel.querySelector('[data-action="year"]');
-        const monthBtn = panel.querySelector('[data-action="month"]');
-        
-        if (yearBtn) yearBtn.classList.toggle('filter-active', yearVal !== '' || activeSubmenuAction === 'year');
-        if (monthBtn) monthBtn.classList.toggle('filter-active', monthVal !== '' || activeSubmenuAction === 'month');
-      };
-
-      const filterObserver = new MutationObserver(syncActiveFilters);
-      ['yearFilter', 'monthFilter'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) filterObserver.observe(el, { attributes: true, childList: true, subtree: true });
-      });
-
-
-      const closePanel = function () {
-        dropdown.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        clearSubpanel();
-      };
-
-      const clearSubpanel = function () {
-        subpanel.classList.remove('open');
-        subpanel.classList.remove('is-month');
-        subpanel.innerHTML = '';
-        activeSubmenuAction = null;
-        if (subpanel.parentElement !== panel) {
-          panel.appendChild(subpanel);
-        }
-      };
-
-      const openInlineSubpanel = function (actionKey, anchorBtn, renderContent) {
-        if (!anchorBtn) return;
-        if (activeSubmenuAction === actionKey && subpanel.classList.contains('open')) {
-          clearSubpanel();
-          return;
-        }
-
-        clearSubpanel();
-        renderContent();
-        anchorBtn.insertAdjacentElement('afterend', subpanel);
-        subpanel.classList.add('open');
-        activeSubmenuAction = actionKey;
-        syncActiveFilters();
-      };
-
-      toggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-        syncDrawerProfile();
-        syncActiveFilters();
-        dropdown.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', dropdown.classList.contains('open') ? 'true' : 'false');
-      });
-
-      closeBtn?.addEventListener('click', function (e) {
-        e.stopPropagation();
-        closePanel();
-      });
-
-      const openFilterDropdown = function (id) {
-        const dd = document.getElementById(id);
-        if (!dd) return;
-        document.querySelectorAll('.custom-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-        dd.classList.add('open');
-      };
-
-      const openOptionsSubmenu = function (dropdownId, actionKey, anchorBtn) {
-        const dropdownEl = document.getElementById(dropdownId);
-        const selectedEl = dropdownEl?.querySelector('.custom-dropdown-selected');
-        const options = dropdownEl?.querySelectorAll('.custom-dropdown-option');
-        if (!dropdownEl || !selectedEl || !options?.length) return;
-
-        openInlineSubpanel(actionKey, anchorBtn, function () {
-          const currentValue = selectedEl.getAttribute('data-value') || '';
-          subpanel.innerHTML = '';
-          subpanel.classList.toggle('is-month', dropdownId === 'monthFilter');
-
-          options.forEach(function (opt) {
-            const value = opt.getAttribute('data-value') || '';
-            const text = (opt.textContent || '').trim();
-            if (value === '' || text.toLowerCase().startsWith('todos')) return;
-
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'mobile-actions-option' + (value === currentValue ? ' active' : '');
-            item.textContent = text;
-            item.addEventListener('click', function () {
-              opt.click();
-              closePanel();
-            });
-            subpanel.appendChild(item);
-          });
-        });
-      };
-
-      panel.addEventListener('click', function (e) {
-        const btn = e.target.closest('[data-action]');
-        if (!btn) return;
-        const action = btn.getAttribute('data-action');
-
-        if (action === 'year') {
-          openOptionsSubmenu('yearFilter', 'year', btn);
-        } else if (action === 'month') {
-          openOptionsSubmenu('monthFilter', 'month', btn);
-        } else if (action === 'clear') {
-          document.getElementById('clearFiltersBtn')?.click();
-          clearSubpanel();
-        } else if (action === 'theme') {
-          document.getElementById('themeToggle')?.click();
-          closePanel();
-        } else if (action === 'logout') {
-          document.getElementById('logoutButton')?.click();
-          closePanel();
-        }
-      });
-
-      const backdrop = document.getElementById('mobileDrawerBackdrop');
-      const handleBackdropClose = function (e) {
-        if (e) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        closePanel();
-      };
-
-      if (backdrop) {
-        backdrop.addEventListener('click', handleBackdropClose);
-        backdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
-      }
-
-      document.addEventListener('click', function (e) {
-        if (dropdown.classList.contains('open') && !dropdown.contains(e.target) && !e.target.closest('.custom-dropdown') && !e.target.closest('.modal')) {
-          closePanel();
-        }
-      });
-
-      window.addEventListener('scroll', closePanel, { passive: true });
-    })();
-  </script>
-
-  <script>
-    // Script de prueba para verificar que openDatePicker está disponible
-    window.addEventListener('load', function() {
-      console.log('Verificando openDatePicker:', typeof window.openDatePicker);
-      console.log('Verificando datePickerModal:', document.getElementById('datePickerModal'));
-      
-      // Si openDatePicker no está definida, mostrar error
-      if (typeof window.openDatePicker !== 'function') {
-        console.error('ERROR: window.openDatePicker no está definida!');
-      }
-    });
-  </script>
+  <script src="/pages/Presupuestos/PresupuestosMobileDrawer.js"></script>
 
   <script src="/lib/SyncAPI.js?v=2026090101"></script>
+  <script src="/pages/Presupuestos/PresupuestosRollover.js"></script>
+  <script src="/pages/Presupuestos/PresupuestosCRUD.js"></script>
+  <script src="/pages/Presupuestos/PresupuestosFilters.js"></script>
+  <script src="/pages/Presupuestos/PresupuestosRenderer.js"></script>
   <script src="/pages/Presupuestos/Presupuestos.js?v=20260820001"></script>
 </body>
 </html>

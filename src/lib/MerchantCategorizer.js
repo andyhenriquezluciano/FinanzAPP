@@ -1,9 +1,4 @@
-/**
- * @fileoverview Motor de Categorización Inteligente para FinanzApp.
- *
- * Utiliza reglas heurísticas (dominicanas e internacionales) y aprendizaje
- * adaptativo basado en el historial del usuario para pre-clasificar gastos.
- */
+/** * @fileoverview Motor de Categorización Inteligente para FinanzApp. */
 
 // Diccionario heurístico exhaustivo de patrones comerciales (locales dominicanos e internacionales)
 const HEURISTIC_RULES = [
@@ -79,11 +74,7 @@ const HEURISTIC_RULES = [
   }
 ];
 
-/**
- * Normaliza texto eliminando acentos, puntuación redundante y mayúsculas.
- * @param {string} text
- * @returns {string}
- */
+/** * Normaliza texto eliminando acentos, puntuación redundante y mayúsculas. */
 function normalize(text) {
   return String(text || '')
     .toLowerCase()
@@ -94,11 +85,7 @@ function normalize(text) {
     .trim();
 }
 
-/**
- * Extrae la clave identificadora más representativa de un comercio.
- * @param {string} merchant
- * @returns {string}
- */
+/** * Extrae la clave identificadora más representativa de un comercio. */
 function getMerchantKey(merchant) {
   const clean = normalize(merchant);
   const stopWords = [
@@ -113,12 +100,7 @@ function getMerchantKey(merchant) {
   return parts[0];
 }
 
-/**
- * Analiza el historial de transacciones de las categorías del usuario
- * y construye un mapa de aprendizaje de comercio -> categoryId.
- * @param {Array} categories
- * @returns {Map<string, { categoryId: string|number, count: number }>}
- */
+/** * Analiza el historial de transacciones de las categorías del usuario */
 function learnFromHistory(categories) {
   const memory = new Map();
   if (!Array.isArray(categories)) return memory;
@@ -158,16 +140,7 @@ function learnFromHistory(categories) {
   return resultMap;
 }
 
-/**
- * Sugiere la categoría más adecuada para una descripción o comercio dado.
- *
- * @param {string} description - Nombre del comercio o descripción del gasto
- * @param {Array} availableCategories - Lista de categorías válidas disponibles
- * @param {Object} [options]
- * @param {Map|Array} [options.historyMemory] - Memoria generada por learnFromHistory o array de categorías
- * @param {string} [options.txType] - 'expense' | 'income'
- * @returns {Object|null} { categoryId, categoryName, confidence, reason }
- */
+/** * Sugiere la categoría más adecuada para una descripción o comercio dado. */
 function suggestCategory(description, availableCategories, options = {}) {
   if (!description || !Array.isArray(availableCategories) || !availableCategories.length) {
     return null;

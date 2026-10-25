@@ -83,5 +83,83 @@ describe('CategoriasFilters - Modular Filter & Sorting Manager', () => {
     expect(filtradas[1].transactions.length).toBe(1);
     expect(filtradas[1].transactions[0].id).toBe('t3');
   });
+
+  it('debe generar opciones de año incluyendo la opción "Todos los años" en la lista', () => {
+    document.body.innerHTML = `
+      <div class="custom-dropdown" id="yearFilter">
+        <div class="custom-dropdown-selected" data-value="">
+          <span>Todos los años</span>
+        </div>
+        <div class="custom-dropdown-options"></div>
+      </div>
+    `;
+
+    // Con filtro nulo
+    CategoriasFilters.generarOpcionesAnio({ year: null, month: null, searchTerm: '' });
+    const sel = document.querySelector('#yearFilter .custom-dropdown-selected');
+    expect(sel.querySelector('span').textContent).toBe('Todos los años');
+    expect(sel.getAttribute('data-value')).toBe('');
+
+    const options = document.querySelectorAll('#yearFilter .custom-dropdown-option');
+    expect(options.length).toBeGreaterThan(0);
+    expect(options[0].textContent).toBe('Todos los años');
+    expect(options[0].getAttribute('data-value')).toBe('');
+    expect(options[0].classList.contains('selected')).toBe(true);
+
+    // Con año seleccionado (2026)
+    CategoriasFilters.generarOpcionesAnio({ year: 2026, month: null, searchTerm: '' });
+    expect(sel.querySelector('span').textContent).toBe('2026');
+    expect(sel.getAttribute('data-value')).toBe('2026');
+  });
+
+  it('al limpiar filtros debe resetear el año a null y mostrar "Todos los años"', () => {
+    document.body.innerHTML = `
+      <input type="text" id="searchInput" value="prueba">
+      <button id="clearSearchBtn"></button>
+      <div class="custom-dropdown filter-active" id="yearFilter">
+        <div class="custom-dropdown-selected" data-value="2026">
+          <span>2026</span>
+        </div>
+        <div class="custom-dropdown-options">
+          <div class="custom-dropdown-option selected" data-value="2026">2026</div>
+        </div>
+      </div>
+      <div class="custom-dropdown filter-active" id="monthFilter">
+        <div class="custom-dropdown-selected" data-value="5">
+          <span>Junio</span>
+        </div>
+        <div class="custom-dropdown-options">
+          <div class="custom-dropdown-option selected" data-value="5">Junio</div>
+        </div>
+      </div>
+      <button id="clearFiltersBtn" class="filter-active"></button>
+    `;
+
+    const filtros = { year: 2026, month: 5, searchTerm: 'prueba' };
+    let changed = false;
+    CategoriasFilters.configurarControlesFiltrosYBusqueda(filtros, () => { changed = true; });
+
+    const btn = document.getElementById('clearFiltersBtn');
+    btn.click();
+
+    expect(filtros.year).toBeNull();
+    expect(filtros.month).toBeNull();
+    expect(filtros.searchTerm).toBe('');
+    expect(changed).toBe(true);
+
+    const yearSel = document.querySelector('#yearFilter .custom-dropdown-selected');
+    expect(yearSel.querySelector('span').textContent).toBe('Todos los años');
+    expect(yearSel.getAttribute('data-value')).toBe('');
+
+    const monthSel = document.querySelector('#monthFilter .custom-dropdown-selected');
+    expect(monthSel.querySelector('span').textContent).toBe('Todos los meses');
+    expect(monthSel.getAttribute('data-value')).toBe('');
+
+    const yearFilter = document.getElementById('yearFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    expect(yearFilter.classList.contains('filter-active')).toBe(false);
+    expect(monthFilter.classList.contains('filter-active')).toBe(false);
+    expect(btn.classList.contains('filter-active')).toBe(false);
+  });
 });
 

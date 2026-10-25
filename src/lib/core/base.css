@@ -1,0 +1,495 @@
+/**
+ * FinanzApp - Centralized Base Layout & Typography
+ * Resets, App Container, Sidebar Navigation, and Main Content Area
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-accent) transparent;
+}
+
+body { 
+  color: var(--light);
+  background-color: var(--dark);
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 100dvh;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+input, textarea, [contenteditable="true"], .selectable-text {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+body.modal-open { 
+  overflow: hidden;
+}
+
+/* Universal Scrollbar */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-accent, #eb6f92);
+  border-radius: 12px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-accent-hover, #f08ca8);
+}
+
+/* App Container Layout */
+.app-container { 
+  display: flex;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 260px;
+  background:#191724;
+  backdrop-filter: blur(15px);
+  border-right: 1px solid var(--sidebar-border, transparent);
+  padding: 20px 16px;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  z-index: 100;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.sidebar-header { 
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+}
+
+.logo { 
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--light);
+  text-decoration: none;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: transparent;
+  background-image: url('/assets/logo-f-oscuro.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+[data-theme="light"] .logo-icon {
+  background-image: url('/assets/logo-f-claro.png');
+}
+
+.nav-links { 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md, 12px);
+  color: var(--gray);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  font-weight: 500;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.nav-item:hover { 
+  background: color-mix(in srgb, var(--primary) 10%, var(--sidebar-bg));
+  color: var(--primary);
+  transform: translateX(4px);
+}
+
+.nav-item.active { 
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.nav-item i,
+.nav-item svg,
+.nav-item .lucide { 
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.2;
+}
+
+.sidebar-footer { 
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.user-profile { 
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #ffffff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.user-info { 
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 12px;
+  color: var(--gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tooltip flotante del perfil de usuario */
+/* Tooltip personalizado del perfil */
+.profile-tooltip {
+  position: fixed;
+  bottom: 82px;
+  left: 16px;
+  background: #232136;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  border: 2.5px solid var(--primary, #eb6f92);
+  bottom: 80px;
+  left: 20px;
+  background: linear-gradient(135deg, #26233a 0%, #1f1d2e 100%);
+  box-shadow: var(--card-shadow-hover);
+  border: 3px solid var(--primary);
+  border-radius: 16px;
+  padding: 14px 18px;
+  padding: 16px 20px;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+  pointer-events: none;
+  min-width: 220px;
+  max-width: 280px;
+  width: max-content;
+  max-width: min(420px, calc(100vw - 40px));
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+
+.profile-tooltip.show,
+.profile-tooltip.visible,
+.sidebar-footer:has(.user-info:hover) .profile-tooltip,
+.sidebar-footer:has(.user-avatar:hover) .profile-tooltip,
+.sidebar-footer:has(.user-profile:hover) .profile-tooltip,
+.user-profile:hover ~ .profile-tooltip,
+.profile-tooltip:hover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Ocultar si se pasa el cursor sobre los botones de acción para no solapar tooltips */
+.sidebar-footer:has(#themeToggle:hover) .profile-tooltip,
+.sidebar-footer:has(#logoutButton:hover) .profile-tooltip {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Flecha exterior (borde) */
+.profile-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 28px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 10px solid var(--primary, #eb6f92);
+}
+
+/* Flecha interior (relleno del fondo) */
+.profile-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 30px;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 8px solid #232136;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid var(--primary);
+}
+
+.tooltip-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--light, #e0def4);
+  line-height: 1.3;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--light);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.tooltip-email {
+  font-size: 13px;
+  color: var(--gray-light, #908caa);
+  line-height: 1.4;
+  color: var(--gray);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.4;
+  margin-top: 6px;
+}
+
+.tooltip-email:empty {
+  display: none;
+}
+
+/* Modo claro para el tooltip del perfil */
+[data-theme='dark'] .profile-tooltip {
+  background: #232136;
+}
+
+[data-theme="light"] .profile-tooltip {
+  background: #fffaf3;
+  border-color: #b4637a;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border: 3px solid #b4637a;
+}
+
+[data-theme="light"] .profile-tooltip::before {
+  border-top-color: #b4637a;
+  border-top-color: var(--primary);
+}
+
+[data-theme="light"] .profile-tooltip::after {
+  border-top-color: #fffaf3;
+}
+
+[data-theme="light"] .tooltip-name {
+  color: #575279;
+}
+
+[data-theme="light"] .tooltip-email {
+  color: #797593;
+}
+
+/* Tooltip corto para iconos (tema, logout y acciones) */
+.btn-icon.app-tooltip {
+  position: relative;
+  overflow: visible;
+}
+
+.btn-icon.app-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(8px);
+  background: linear-gradient(135deg, var(--darker, #191724) 0%, var(--dark, #1f1d2e) 100%);
+  color: var(--light);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 10000;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.btn-icon.app-tooltip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 3px);
+  transform: translateX(-50%) translateY(8px);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid var(--primary);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.btn-icon.app-tooltip:hover::after,
+.btn-icon.app-tooltip:hover::before,
+.btn-icon.app-tooltip:focus-visible::after,
+.btn-icon.app-tooltip:focus-visible::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.sidebar-footer .btn-icon.app-tooltip::after {
+  left: auto;
+  right: 0;
+  transform: translateY(8px);
+}
+
+.sidebar-footer .btn-icon.app-tooltip::before {
+  left: auto;
+  right: 12px;
+  transform: translateY(8px);
+}
+
+.sidebar-footer .btn-icon.app-tooltip:hover::after,
+.sidebar-footer .btn-icon.app-tooltip:hover::before,
+.sidebar-footer .btn-icon.app-tooltip:focus-visible::after,
+.sidebar-footer .btn-icon.app-tooltip:focus-visible::before {
+  transform: translateY(0);
+}
+
+[data-theme='dark'] .profile-tooltip,
+[data-theme='dark'] .btn-icon.app-tooltip::after {
+  background: #232136;
+}
+
+[data-theme='light'] .profile-tooltip {
+  background: #fffaf3;
+  border: 3px solid var(--primary);
+}
+
+[data-theme='light'] .btn-icon.app-tooltip::after {
+  background: #fffaf3;
+  border: 2px solid var(--primary);
+  color: #575279;
+}
+
+/* Main Content Layout */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 24px 32px;
+  min-height: 100dvh;
+  box-sizing: border-box;
+}
+
+.page-header { 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title { 
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--light);
+  margin: 0;
+}
+
+/* Desktop Hide Sidebar on Mobile */
+@media (max-width: 980px) {
+  .sidebar {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 16px;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
+

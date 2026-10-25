@@ -121,7 +121,6 @@ body.budgets-page .main-content::-webkit-scrollbar-thumb:hover {
 	transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
 }
 
-
 .budget-stats .stat-row {
 	display: flex;
 	justify-content: space-between;

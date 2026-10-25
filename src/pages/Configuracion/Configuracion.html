@@ -36,10 +36,11 @@
   <script src="/lib/lucide/lucide.min.js"></script>
   <script src="/lib/LucideIcons.js"></script>
 
-  <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
+  <link rel="stylesheet" href="/lib/core/core.css">
+  <link rel="stylesheet" href="/lib/toast.css">
+  <link rel="stylesheet" href="/lib/shared-mobile-nav.css">
   <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
   <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=202608280441">
-  <link rel="stylesheet" href="/pages/Configuracion/styles/tema-oscuro.css?v=20260824003" id="dark-css">
   <link rel="stylesheet" href="/pages/Configuracion/styles/tema-claro.css?v=20260824003" id="light-css">
   <link rel="stylesheet" href="/pages/Configuracion/styles/mobile-nav.css?v=20260824003">
 
@@ -48,32 +49,24 @@
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
   <script src="/__config.js"></script>
-  
-  <script src="/lib/FirestoreDB.js?v=1788099417852"></script>
-  <script src="/lib/FirebaseAuth.js?v=1788099417852"></script>
 
-  <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
-  <script src="/lib/Debug.js?v=1788099417852"></script>
-  <script src="/lib/Events.js?v=1788099417852"></script>
-  <script src="/lib/UI.js?v=1788099417852"></script>
-  <script src="/lib/Helpers.js?v=1788099417852"></script>
-  <script src="/lib/DataStore.js?v=1788099417852"></script>
-  <script src="/lib/BasePage.js?v=1788099417852"></script>
+  <script src="/lib/Logger.js"></script>
+  <script src="/lib/Constants.js"></script>
+  <script src="/lib/AuthService.js"></script>
+  <script src="/lib/FirestoreDB.js?v=1788099418340"></script>
+  <script src="/lib/Events.js?v=1788099418340"></script>
+  <script src="/lib/UI.js?v=1788099418340"></script>
+  <script src="/lib/Toast.js"></script>
+  <script src="/lib/ModalManager.js"></script>
+  <script src="/lib/DatePicker.js"></script>
+  <script src="/lib/ProfileSync.js"></script>
+  <script src="/lib/Helpers.js?v=1788099418340"></script>
+  <script src="/lib/DataStore.js?v=1788099418340"></script>
+  <script src="/lib/BasePage.js?v=1788099418340"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
+  <script src="/lib/FirebaseAuth.js?v=1788099417852"></script>
   <script src="/lib/sidebarRenderer.js"></script>
 
-  <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
-  <script>
-    (function () {
-      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
-      Object.defineProperty(Element.prototype, 'innerHTML', {
-        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
-        get: _d.get,
-        configurable: true,
-        enumerable: true
-      });
-    })();
-  </script>
 </head>
 <body class="config-page">
   <div class="app-container">
@@ -95,11 +88,11 @@
         </a>
         <a href="../Estadistica/Estadistica.html" class="nav-item">
           <i data-lucide="pie-chart"></i>
-          <span>Estadisticas</span>
+          <span>Estadísticas</span>
         </a>
         <a href="../Configuracion/Configuracion.html" class="nav-item active" aria-current="page">
           <i data-lucide="settings"></i>
-          <span>Configuracion</span>
+          <span>Configuración</span>
         </a>
       </nav>
       <div class="sidebar-footer">
@@ -110,7 +103,7 @@
             <div class="user-email"></div>
           </div>
           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
-            <i data-lucide="moon"></i>
+            <i data-lucide="sun"></i>
           </button>
           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
             <i data-lucide="log-out"></i>
@@ -383,7 +376,7 @@
               <label class="btn btn-secondary file-label" for="importBackupInput">
                 <i data-lucide="file-down" aria-hidden="true"></i> Importar respaldo
               </label>
-              <input type="file" id="importBackupInput" class="hidden" accept="application/json" aria-hidden="true">
+              <input type="file" id="importBackupInput" class="hidden" accept="application/json" aria-hidden="true" style="display: none;">
               <button class="btn btn-danger" type="button" id="clearDataBtn">
                 <i data-lucide="trash-2" aria-hidden="true"></i> Reiniciar datos
               </button>
@@ -571,6 +564,8 @@
   </div>
 
   <script src="/lib/SyncAPI.js?v=1788099417852"></script>
+  <script src="/pages/Configuracion/ConfiguracionBackup.js"></script>
+  <script src="/pages/Configuracion/ConfiguracionImapSync.js"></script>
   <script src="/pages/Configuracion/Configuracion.js?v=1788099417852"></script>
   
 

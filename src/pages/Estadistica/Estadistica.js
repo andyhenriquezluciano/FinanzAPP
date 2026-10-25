@@ -13,23 +13,9 @@ if (typeof window !== 'undefined' && window.sidebarRenderer) {
 }
 
 // Actualizar perfil del invitado si tiene el formato antiguo
-(function actualizarPerfilInvitado() {
-  try {
-    const authUser = localStorage.getItem('authUser');
-    if (authUser && authUser !== 'guest') {
-      const profile = JSON.parse(authUser);
-      if (profile.provider === 'guest' && 
-          (profile.email === 'invitado@finanzapp.com' || profile.name === 'Usuario Invitado')) {
-        profile.name = 'Invitado';
-        profile.email = '';
-        localStorage.setItem('authUser', JSON.stringify(profile));
-        window.location.reload();
-      }
-    }
-  } catch (e) {
-    console.error('Error al actualizar perfil del invitado:', e);
-  }
-})();
+if (typeof window !== 'undefined' && window.AuthService) {
+  window.AuthService.normalizeGuestProfile();
+}
 
 function getCurrencyMeta() {
   if (window.Core?.helpers?.getCurrencyMeta) {
@@ -113,13 +99,6 @@ function colorWithAlpha(color, alpha = 1) {
   const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
   let state = { categories: [], monthlyData: { labels: MONTHS, income: Array(12).fill(0), expenses: Array(12).fill(0) }, user: { name: 'Usuario', email: '' } };
-  let chartCashflowArea,
-      chartIncomeByCategory,
-      chartExpenseByCategory,
-      chartIncomeByDay,
-      chartSavingsGauge,
-      chartRadar,
-      chartHeatmap;
 
   function obtenerRangoAnios() {
     const now = new Date().getFullYear();
@@ -243,30 +222,9 @@ function colorWithAlpha(color, alpha = 1) {
   }
 
   function aplicarConfiguracionTema() {
-    if (!window.Chart) return;
-
-    const defaults = window.Chart.defaults || Chart.defaults;
-    const esTemaOscuro = window.themeManager?.currentTheme === 'dark' ||
-                         localStorage.getItem('theme') === 'dark';
-
-    defaults.color = esTemaOscuro ? '#E0E0E0' : '#333333';
-    defaults.borderColor = esTemaOscuro ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-    if (defaults.plugins?.legend?.labels) {
-      defaults.plugins.legend.labels.color = esTemaOscuro ? '#E0E0E0' : '#333333';
+    if (window.EstadisticaCharts?.aplicarConfiguracionTema) {
+      window.EstadisticaCharts.aplicarConfiguracionTema();
     }
-
-    defaults.font = defaults.font || {};
-    defaults.font.family = "'Inter', sans-serif";
-    defaults.font.size = 11;
-
-    const escalas = defaults.scales || (defaults.scales = {});
-    const grilla = escalas.grid || (escalas.grid = {});
-    grilla.color = 'rgba(110, 106, 134, 0.2)';
-    grilla.borderColor = 'rgba(110, 106, 134, 0.2)';
-    grilla.drawBorder = true;
-    grilla.drawOnChartArea = true;
-    grilla.drawTicks = false;
-    grilla.lineWidth = 1;
   }
 
   function mostrarEsqueletos() {
@@ -322,76 +280,15 @@ function colorWithAlpha(color, alpha = 1) {
   }
 
   function poblarPerfilSidebar() {
-    try {
-      const raw = localStorage.getItem('authUser');
-      const profile = raw && raw !== 'guest' ? JSON.parse(raw) : { name: 'Invitado', email: '', picture: '' };
-      const nameEl = document.querySelector('.user-name');
-      const emailEl = document.querySelector('.user-email');
-      const avatarEl = document.querySelector('.user-avatar');
-      if (nameEl) {
-        const displayName = profile.name || 'Usuario';
-        nameEl.textContent = displayName;
-        nameEl.setAttribute('aria-label', displayName);
-      }
-      if (emailEl) {
-        const displayEmail = profile.email || '';
-        emailEl.textContent = displayEmail;
-        if (displayEmail) {
-          emailEl.setAttribute('aria-label', displayEmail);
-          emailEl.style.display = 'block';
-        } else {
-          emailEl.removeAttribute('aria-label');
-          emailEl.style.display = 'none';
-        }
-      }
-      if (avatarEl) {
-        avatarEl.innerHTML = '';
-        if (profile.picture) {
-          const img = document.createElement('img');
-          img.src = profile.picture; img.alt = profile.name || 'Usuario';
-          avatarEl.appendChild(img);
-        } else {
-          avatarEl.textContent = (profile.name || 'Invitado').trim().charAt(0).toUpperCase();
-        }
-      }
-    } catch {}
+    if (window.ProfileSync?.syncProfile) {
+      window.ProfileSync.syncProfile();
+    }
   }
 
   function inicializarTooltipPerfil() {
-    const userInfo = document.getElementById('userInfoHover');
-    const tooltip = document.getElementById('profileTooltip');
-    const tooltipName = tooltip?.querySelector('.tooltip-name');
-    const tooltipEmail = tooltip?.querySelector('.tooltip-email');
-    
-    if (!userInfo || !tooltip) return;
-    
-    let hideTimeout;
-    
-    function showTooltip() {
-      clearTimeout(hideTimeout);
-      
-      const raw = localStorage.getItem('authUser');
-      const profile = raw && raw !== 'guest' ? JSON.parse(raw) : { name: 'Invitado', email: '' };
-      
-      if (tooltipName) tooltipName.textContent = profile.name || 'Usuario';
-      if (tooltipEmail) {
-        tooltipEmail.textContent = profile.email || '';
-        tooltipEmail.style.display = (profile.email && profile.email !== '') ? 'block' : 'none';
-      }
-      
-      tooltip.classList.add('show');
+    if (window.ProfileSync?.initProfileTooltip) {
+      window.ProfileSync.initProfileTooltip();
     }
-    
-    function hideTooltip() {
-      hideTimeout = setTimeout(() => {
-        tooltip.classList.remove('show');
-      }, 200);
-    }
-    
-    userInfo.addEventListener('mouseenter', showTooltip);
-    userInfo.addEventListener('mouseleave', hideTooltip);
-    tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-    tooltip.addEventListener('mouseleave', hideTooltip);
   }
 
   function configurarEventosComunes() {
@@ -506,6 +403,14 @@ function colorWithAlpha(color, alpha = 1) {
     const shared = cargarFiltrosPersistidos();
 
     const { start, end } = obtenerRangoAnios();
+
+    const allOpt = document.createElement('div');
+    const isAllSelected = shared.year === null || shared.year === '' || shared.year === undefined;
+    allOpt.className = `custom-dropdown-option ${isAllSelected ? 'selected' : ''}`;
+    allOpt.setAttribute('data-value', '');
+    allOpt.textContent = 'Todos los años';
+    optionsContainer.appendChild(allOpt);
+
     for (let y = start; y <= end; y++){
       const isSelected = shared.year === y;
       const opt = document.createElement('div');
@@ -551,780 +456,59 @@ function colorWithAlpha(color, alpha = 1) {
   }
 
   function calcularMensual(tx) {
-    const inc = Array(12).fill(0), exp = Array(12).fill(0);
-    tx.forEach(t => {
-      const d = t.date instanceof Date ? t.date : new Date(t.date);
-      if (Number.isNaN(d.getTime())) return;
-      const m = d.getMonth();
-      if (t.type === 'income') inc[m] += t.amount; else exp[m] += t.amount;
-    });
-    return { inc, exp };
+    return window.EstadisticaKPIs ? window.EstadisticaKPIs.calcularMensual(tx) : { inc: Array(12).fill(0), exp: Array(12).fill(0) };
   }
 
   function calcularAcumulado(inc, exp) {
-    const cum = [];
-    let s = 0;
-    for (let i=0;i<12;i++) { s += (inc[i] - exp[i]); cum.push(s); }
-    return cum;
+    return window.EstadisticaKPIs ? window.EstadisticaKPIs.calcularAcumulado(inc, exp) : [];
   }
 
   function calcularDivisionCategorias(tx) {
-    const mapExp = new Map();
-    const mapInc = new Map();
-    tx.forEach(t => {
-      const map = t.type === 'income' ? mapInc : mapExp;
-      map.set(t.category, (map.get(t.category)||0) + t.amount);
-    });
-    const toArr = (m) => Array.from(m.entries()).map(([name, amount]) => ({name, amount}))
-      .sort((a,b)=>b.amount-a.amount);
-    return { expenses: toArr(mapExp), income: toArr(mapInc) };
+    return window.EstadisticaKPIs ? window.EstadisticaKPIs.calcularDivisionCategorias(tx) : { expenses: [], income: [] };
   }
 
-  
-
-  function renderizarResumen(tx){
-    document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton'));
-    
-    let inc=0, exp=0; tx.forEach(t => t.type==='income' ? inc+=t.amount : exp+=t.amount);
-    const bal = inc - exp;
-    const monthsCovered = (function(){
-      const set = new Set(tx.map(t => (t.date instanceof Date ? t.date : new Date(t.date)).getMonth()));
-      return Math.max(1, set.size);
-    })();
-    const el = (id) => document.getElementById(id);
-    
-    const animateValue = (element, value) => {
-      if (element) {
-        element.style.opacity = '0';
-        setTimeout(() => {
-          element.textContent = value;
-          element.style.opacity = '1';
-        }, 150);
-      }
-    };
-    
-    animateValue(el('sumIncome'), formatCurrencyCard(inc));
-    animateValue(el('sumExpenses'), formatCurrencyCard(exp));
-    animateValue(el('sumBalance'), formatCurrencyCard(bal));
-
-    const setLabeledValue = (id, defaultLabel, amount) => {
-      const node = el(id);
-      if (!node) return;
-      const label = (node.getAttribute('data-label') || (node.textContent.split(':')[0] || defaultLabel)).trim();
-      node.setAttribute('data-label', label);
-      node.style.opacity = '0';
-      setTimeout(() => {
-        node.textContent = `${label}: ${formatCurrencyCard(amount)}`;
-        node.style.opacity = '1';
-      }, 150);
-    };
-
-    setLabeledValue('avgIncome', 'Promedio mensual', inc / monthsCovered);
-    setLabeledValue('avgExpenses', 'Promedio mensual', exp / monthsCovered);
-    setLabeledValue('avgBalance', 'Promedio mensual', bal / monthsCovered);
-
-    animateValue(el('txCount'), String(tx.length));
-    const ticket = tx.length ? (inc + exp) / tx.length : 0;
-    setLabeledValue('avgTicket', 'Ticket promedio', ticket);
-  }
-
-  function calcularEstadisticasDiarias(allTx){
-    const today = new Date();
-    const start30 = new Date();
-    start30.setDate(today.getDate() - 29);
-
-    let incomeToday = 0, expensesToday = 0;
-    const netByDate = new Map();
-    for (let i=0;i<30;i++){ const d = new Date(start30); d.setDate(start30.getDate()+i); netByDate.set(d.toISOString().slice(0,10), 0); }
-
-    allTx.forEach(t => {
-      const d = t.date instanceof Date ? t.date : new Date(t.date);
-      if (Number.isNaN(d.getTime())) return;
-      const key = d.toISOString().slice(0,10);
-
-      if (d.getFullYear()===today.getFullYear() && d.getMonth()===today.getMonth() && d.getDate()===today.getDate()){
-        if (t.type==='income') incomeToday += t.amount; else if (t.type==='expense') expensesToday += t.amount;
-      }
-
-      if (d >= start30 && d <= today){
-        const delta = t.type==='income' ? t.amount : -t.amount;
-        netByDate.set(key, (netByDate.get(key)||0) + delta);
-      }
-    });
-
-    let sum = 0, count = 0; netByDate.forEach(v => { sum += v; count++; });
-    const avgDaily = count ? (sum / count) : 0;
-    return { incomeToday, expensesToday, avgDaily };
-  }
-
-  function renderizarKPIsDiarios(allTx){
-    const { incomeToday, expensesToday, avgDaily } = calcularEstadisticasDiarias(allTx);
-    const el = id => document.getElementById(id);
-    if (el('dailyIncome')) el('dailyIncome').textContent = formatCurrencyCard(incomeToday);
-    if (el('dailyExpenses')) el('dailyExpenses').textContent = formatCurrencyCard(expensesToday);
-    if (el('dailyAverage')) el('dailyAverage').textContent = formatCurrencyCard(avgDaily);
-  }
-
-  function actualizarInsights(info){
-    const setText = (id, value) => {
-      const node = document.getElementById(id);
-      if (node) node.textContent = value;
-    };
-
-    const {
-      topCategory,
-      topCategoryPercent,
-      bestMonthLabel,
-      bestMonthNet,
-      savingsRate,
-      savings,
-      totalIncome
-    } = info;
-
-    if (topCategory) {
-      setText('insightTopCategoryValue', formatCurrencyCard(topCategory.amount));
-      setText('insightTopCategoryDetail', `${topCategory.name} · ${topCategoryPercent.toFixed(1)}% del gasto`);
-    } else {
-      setText('insightTopCategoryValue', 'Sin datos');
-      setText('insightTopCategoryDetail', 'Aún no hay gastos registrados en este periodo.');
-    }
-
-    if (bestMonthLabel) {
-      const balanceLabel = `${bestMonthNet >= 0 ? '+' : '− '}${formatCurrencyCard(Math.abs(bestMonthNet))}`;
-      setText('insightBestMonthValue', bestMonthLabel);
-      setText('insightBestMonthDetail', `Balance neto: ${balanceLabel}`);
-    } else {
-      setText('insightBestMonthValue', 'Sin datos');
-      setText('insightBestMonthDetail', 'Agrega movimientos para conocer tu mejor mes.');
-    }
-
-    if (totalIncome > 0) {
-      const savingsPercent = CHART_PERCENT_FORMATTER.format(savingsRate);
-      const savingsLabel = savings >= 0
-        ? `Reservaste ${formatCurrencyCard(savings)} de tus ingresos.`
-        : `Deficit de ${formatCurrencyCard(Math.abs(savings))}.`;
-      setText('insightSavingsValue', savingsPercent);
-      setText('insightSavingsDetail', savingsLabel);
-    } else {
-      setText('insightSavingsValue', 'Sin datos');
-      setText('insightSavingsDetail', 'Registra ingresos para calcular tu balance neto.');
+  function renderizarResumen(tx) {
+    if (window.EstadisticaKPIs) {
+      window.EstadisticaKPIs.renderizarResumen(tx, formatCurrencyCard);
     }
   }
 
-  function destruirGraficos(){
-    [
-      chartCashflowArea,
-      chartIncomeByCategory,
-      chartExpenseByCategory,
-      chartIncomeByDay,
-      chartSavingsGauge,
-      chartRadar,
-      chartHeatmap
-    ].forEach((instance) => {
-      if (!instance) return;
-      try {
-        instance.destroy();
-      } catch (error) {
-      }
-    });
-
-    chartCashflowArea = chartIncomeByCategory = chartExpenseByCategory = chartIncomeByDay = chartSavingsGauge = chartRadar = chartHeatmap = null;
-
-    const canvasIds = [
-      'chartCashflowArea',
-      'chartIncomeByCategory',
-      'chartExpenseByCategory',
-      'chartIncomeByDay',
-      'chartSavingsGauge',
-      'chartRadar',
-      'chartHeatmap'
-    ];
-
-    canvasIds.forEach(id => {
-      const canvas = document.getElementById(id);
-      if (!canvas) return;
-      if (typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function') {
-        try {
-          const chartInstance = window.Chart.getChart(canvas);
-          if (chartInstance) chartInstance.destroy();
-        } catch (error) {}
-      }
-    });
+  function calcularEstadisticasDiarias(allTx) {
+    return window.EstadisticaKPIs ? window.EstadisticaKPIs.calcularEstadisticasDiarias(allTx) : { incomeToday: 0, expensesToday: 0, avgDaily: 0 };
   }
 
-  
+  function renderizarKPIsDiarios(allTx) {
+    if (window.EstadisticaKPIs) {
+      window.EstadisticaKPIs.renderizarKPIsDiarios(allTx, formatCurrencyCard);
+    }
+  }
+
+  function actualizarInsights(info) {
+    if (window.EstadisticaKPIs) {
+      window.EstadisticaKPIs.actualizarInsights(info, formatCurrencyCard);
+    }
+  }
+
+  function destruirGraficos() {
+    if (window.EstadisticaCharts) {
+      window.EstadisticaCharts.destruirGraficos();
+    }
+  }
 
   function renderizarGraficos(tx) {
-    if (!window.Chart) {
-      return;
-    }
-
-    aplicarConfiguracionTema();
-    destruirGraficos();
-
-    const isDarkTheme = window.themeManager?.currentTheme === 'dark' ||
-                        localStorage.getItem('theme') === 'dark';
-    const gridColor = isDarkTheme ? '#26233a' : '#e5e5e5';
-    const tickColor = isDarkTheme ? '#908caa' : '#9893a5';
-
-    const MONTH_LABELS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    const MONTH_LABELS_FULL = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-    const { inc, exp } = calcularMensual(tx);
-    const netMonthly = inc.map((income, index) => income - exp[index]);
-    const cumulativeBalance = calcularAcumulado(inc, exp);
-    const totalIncome = inc.reduce((sum, value) => sum + value, 0);
-    const totalExpenses = exp.reduce((sum, value) => sum + value, 0);
-    const savings = totalIncome - totalExpenses;
-    const savingsRate = totalIncome > 0 ? savings / totalIncome : 0;
-
-    const splits = calcularDivisionCategorias(tx);
-    const expenseItems = splits.expenses.filter(item => item.amount > 0);
-    const topExpenseCategories = expenseItems.slice(0, 8);
-    const totalExpensesForPercent = expenseItems.reduce((sum, item) => sum + item.amount, 0) || 1;
-    const topCategory = topExpenseCategories.length ? topExpenseCategories[0] : null;
-    const topCategoryPercent = topCategory ? (topCategory.amount / totalExpensesForPercent) * 100 : 0;
-
-    const hasNetMovement = netMonthly.some(value => Math.abs(value) > 0.01);
-    const bestMonthIndex = hasNetMovement ? netMonthly.reduce((best, value, index) => (value > netMonthly[best] ? index : best), 0) : null;
-    const bestMonthLabel = bestMonthIndex !== null ? MONTH_LABELS_FULL[bestMonthIndex] : null;
-    const bestMonthNet = bestMonthIndex !== null ? netMonthly[bestMonthIndex] : 0;
-
-    const expenseByDay = Array(31).fill(0);
-    const incomeByDay = Array(31).fill(0);
-    tx.forEach(transaction => {
-      const date = transaction.date instanceof Date ? transaction.date : new Date(transaction.date);
-      if (Number.isNaN(date)) return;
-      const dayIndex = Math.max(0, Math.min(30, date.getDate() - 1));
-      if (transaction.type === 'income') {
-        incomeByDay[dayIndex] += transaction.amount;
-      }
-      if (transaction.type === 'expense') {
-        expenseByDay[dayIndex] += transaction.amount;
-      }
-    });
-
-    actualizarInsights({
-      topCategory,
-      topCategoryPercent,
-      bestMonthLabel,
-      bestMonthNet,
-      savingsRate,
-      savings,
-      totalIncome
-    });
-
-    const cashflowSummary = document.getElementById('cashflowSummary');
-    if (cashflowSummary) {
-      cashflowSummary.textContent = '';
-      cashflowSummary.style.display = 'none';
-    }
-
-    const gaugeLabel = document.getElementById('savingsGaugeLabel');
-    if (gaugeLabel) {
-      if (totalIncome > 0) {
-        gaugeLabel.textContent = CHART_PERCENT_FORMATTER.format(savingsRate);
-        gaugeLabel.classList.toggle('negative', savings < 0);
-      } else {
-        gaugeLabel.textContent = 'Sin datos';
-        gaugeLabel.classList.remove('negative');
-      }
-    }
-
-    const getCtx = id => {
-      const canvas = document.getElementById(id);
-      if (!canvas) return null;
-      if (typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function') {
-        try {
-          const existing = window.Chart.getChart(canvas);
-          if (existing) existing.destroy();
-        } catch (e) {}
-      }
-      return canvas.getContext('2d');
-    };
-    const successBase = getThemeColor('--success', '#2D957B');
-    const dangerBase = isDarkTheme ? getThemeColor('--danger', '#eb6f92') : '#b4637a';
-    const fillOpacity = isDarkTheme ? 0.25 : 0.20;
-    const successFill = colorWithAlpha(successBase, fillOpacity);
-    const successSolid = colorWithAlpha(successBase, 0.95);
-    const successLine = colorWithAlpha(successBase, 1);
-    const dangerFill = colorWithAlpha(dangerBase, fillOpacity);
-    const dangerSolid = colorWithAlpha(dangerBase, 0.95);
-    const dangerLine = colorWithAlpha(dangerBase, 1);
-
-    const baseLegend = {
-      labels: {
-        font: {
-          family: 'Inter, sans-serif',
-          size: 12,
-          weight: '600'
-        },
-        color: tickColor,
-        usePointStyle: true,
-        pointStyle: 'circle',
-        padding: 12
-      }
-    };
-
-    const baseTooltip = {
-      backgroundColor: isDarkTheme ? '#232136' : '#FFFAF3',
-      titleColor: isDarkTheme ? '#FFFAF3' : '#575279',
-      bodyColor: isDarkTheme ? '#FFFAF3' : '#575279',
-      borderColor: isDarkTheme ? '#EB6F92' : '#B4637A',
-      borderWidth: 2,
-      padding: 12,
-      cornerRadius: 12,
-      titleFont: {
-        family: 'Inter, sans-serif',
-        size: 13,
-        weight: '700'
-      },
-      bodyFont: {
-        family: 'Inter, sans-serif',
-        size: 12
-      },
-      displayColors: false
-    };
-
-    const legendMarginPlugin = {
-      id: 'legendMargin',
-      beforeInit(chart) {
-        const originalFit = chart.legend.fit;
-        chart.legend.fit = function () {
-          originalFit.call(this);
-          this.height += 18;
-        };
-      }
-    };
-
-    const baseOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: {
-        padding: {
-          left: 14,
-          right: 18,
-          top: 6,
-          bottom: 6
-        }
-      },
-      animation: {
-        duration: 900,
-        easing: 'easeInOutQuart'
-      },
-      plugins: {
-        legend: baseLegend,
-        tooltip: { ...baseTooltip }
-      }
-    };
-
-    const cashflowCtx = getCtx('chartCashflowArea');
-    if (cashflowCtx) {
-      try {
-        chartCashflowArea = new Chart(cashflowCtx, {
-          type: 'line',
-          plugins: [legendMarginPlugin],
-          data: {
-            labels: MONTH_LABELS,
-            datasets: [
-              {
-                label: 'Ingresos',
-                data: inc,
-                backgroundColor: successFill,
-                borderColor: successLine,
-                borderWidth: 3,
-                fill: true,
-                tension: 0.35,
-                pointRadius: 5,
-                pointHoverRadius: 8,
-                pointBackgroundColor: successLine,
-                pointBorderColor: successLine,
-                pointBorderWidth: 2
-              },
-              {
-                label: 'Gastos',
-                data: exp,
-                backgroundColor: dangerFill,
-                borderColor: dangerLine,
-                borderWidth: 3,
-                fill: true,
-                tension: 0.35,
-                pointRadius: 5,
-                pointHoverRadius: 8,
-                pointBackgroundColor: dangerLine,
-                pointBorderColor: dangerLine,
-                pointBorderWidth: 2
-              },
-              {
-                label: 'Balance neto',
-                data: netMonthly,
-                borderColor: isDarkTheme ? '#c4a7e7' : '#9c6bd7',
-                borderWidth: 3,
-                fill: false,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 6,
-                pointBackgroundColor: isDarkTheme ? '#c4a7e7' : '#9c6bd7',
-                pointBorderColor: isDarkTheme ? '#c4a7e7' : '#9c6bd7',
-                borderDash: [8, 4]
-              }
-            ]
-          },
-          options: {
-            ...baseOptions,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-              ...baseOptions.plugins,
-              tooltip: {
-                ...baseOptions.plugins.tooltip,
-                callbacks: {
-                  title: context => {
-                    // Mostrar el nombre completo del mes
-                    const MONTH_LABELS_FULL = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-                    const idx = context[0]?.dataIndex ?? 0;
-                    return MONTH_LABELS_FULL[idx] || '';
-                  },
-                  label: context => {
-                    const label = context.dataset.label || '';
-                    const value = context.parsed.y || 0;
-                    return `${label}: ${formatCurrencyCard(value)}`;
-                  }
-                }
-              }
-            },
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: {
-                  color: tickColor,
-                  font: { family: 'Inter, sans-serif', size: 12, weight: '500' }
-                }
-              },
-              y: {
-                beginAtZero: true,
-                grid: { color: gridColor, drawBorder: false },
-                ticks: {
-                  color: tickColor,
-                  font: { size: 11 },
-                  callback: value => `${APP_CURRENCY.symbol}${Intl.NumberFormat('es-DO', { notation: 'compact', compactDisplay: 'short' }).format(value)}`
-                }
-              }
-            }
-          }
-        });
-      } catch (error) {
-      }
-    }
-
-    const incomeCtx = getCtx('chartIncomeByCategory');
-    if (incomeCtx) {
-      try {
-        const incomeByCat = new Map();
-        tx.forEach(t => {
-          if (t.type === 'income') {
-            const current = incomeByCat.get(t.category) || 0;
-            incomeByCat.set(t.category, current + t.amount);
-          }
-        });
-
-        const incomeCategories = Array.from(incomeByCat.entries())
-          .map(([name, amount]) => ({ name, amount }))
-          .filter(cat => cat.amount > 0)
-          .sort((a, b) => b.amount - a.amount)
-          .slice(0, 10);
-
-        const incomeLabels = incomeCategories.length ? incomeCategories.map(cat => cat.name) : ['Sin datos'];
-        const incomeData = incomeCategories.length ? incomeCategories.map(cat => cat.amount) : [0];
-        const totalIncomeChart = incomeData.reduce((sum, val) => sum + val, 0);
-        const incomePercentages = incomeCategories.length
-          ? incomeCategories.map(cat => totalIncomeChart > 0 ? (cat.amount / totalIncomeChart) * 100 : 0)
-          : [0];
-
-        chartIncomeByCategory = new Chart(incomeCtx, {
-          type: 'bar',
-          data: {
-            labels: incomeLabels,
-            datasets: [{
-              label: 'Ingreso total',
-              data: incomeData,
-              backgroundColor: successSolid,
-              borderColor: successLine,
-              hoverBackgroundColor: successLine,
-              borderRadius: 6,
-              maxBarThickness: 32,
-              borderSkipped: 'start',
-              minBarLength: 4,
-              barPercentage: 0.65,
-              categoryPercentage: 0.75,
-              barThickness: 16,
-              maxBarThickness: 16
-            }]
-          },
-          options: {
-            ...baseOptions,
-            indexAxis: 'y',
-            plugins: {
-              ...baseOptions.plugins,
-              legend: { display: false },
-              tooltip: {
-                ...baseOptions.plugins.tooltip,
-                callbacks: {
-                  label: context => {
-                    const amount = context.parsed.x || 0;
-                    const percent = incomePercentages[context.dataIndex] || 0;
-                    return [
-                      `Monto: ${formatCurrencyCard(amount)}`,
-                      `Participación: ${percent.toFixed(1)}%`
-                    ];
-                  }
-                }
-              }
-            },
-            scales: {
-              x: {
-                beginAtZero: true,
-                grid: { color: gridColor, drawBorder: false },
-                ticks: {
-                  color: '#9893a5',
-                  font: { size: 11 },
-                  callback: value => `${APP_CURRENCY.symbol}${Intl.NumberFormat('es-DO', { notation: 'compact', compactDisplay: 'short' }).format(value)}`
-                }
-              },
-              y: {
-                grid: { display: false },
-                ticks: {
-                  color: '#9893a5',
-                  font: { family: 'Inter, sans-serif', size: 12, weight: '500' },
-                  align: 'center',
-                  crossAlign: 'far',
-                  padding: 18
-                }
-              }
-            }
-          }
-        });
-      } catch (error) {
-      }
-    }
-
-    const expenseCtx = getCtx('chartExpenseByCategory');
-    if (expenseCtx) {
-      try {
-        const expenseByCat = new Map();
-        tx.forEach(t => {
-          if (t.type === 'expense') {
-            const current = expenseByCat.get(t.category) || 0;
-            expenseByCat.set(t.category, current + t.amount);
-          }
-        });
-
-        const expenseCategories = Array.from(expenseByCat.entries())
-          .map(([name, amount]) => ({ name, amount }))
-          .filter(cat => cat.amount > 0)
-          .sort((a, b) => b.amount - a.amount)
-          .slice(0, 10);
-
-        const expenseLabels = expenseCategories.length ? expenseCategories.map(cat => cat.name) : ['Sin datos'];
-        const expenseData = expenseCategories.length ? expenseCategories.map(cat => cat.amount) : [0];
-        const totalExpenses = expenseData.reduce((sum, val) => sum + val, 0);
-        const expensePercentages = expenseCategories.length
-          ? expenseCategories.map(cat => totalExpenses > 0 ? (cat.amount / totalExpenses) * 100 : 0)
-          : [0];
-
-        chartExpenseByCategory = new Chart(expenseCtx, {
-          type: 'bar',
-          data: {
-            labels: expenseLabels,
-            datasets: [{
-              label: 'Gasto total',
-              data: expenseData,
-              backgroundColor: dangerSolid,
-              borderColor: dangerLine,
-              hoverBackgroundColor: dangerLine,
-              borderRadius: 6,
-              maxBarThickness: 32,
-              borderSkipped: 'start',
-              minBarLength: 4,
-              barPercentage: 0.65,
-              categoryPercentage: 0.75,
-              barThickness: 16,
-              maxBarThickness: 16
-            }]
-          },
-          options: {
-            ...baseOptions,
-            indexAxis: 'y',
-            plugins: {
-              ...baseOptions.plugins,
-              legend: { display: false },
-              tooltip: {
-                ...baseOptions.plugins.tooltip,
-                callbacks: {
-                  label: context => {
-                    const amount = context.parsed.x || 0;
-                    const percent = expensePercentages[context.dataIndex] || 0;
-                    return [
-                      `Monto: ${formatCurrencyCard(amount)}`,
-                      `Participación: ${percent.toFixed(1)}%`
-                    ];
-                  }
-                }
-              }
-            },
-            scales: {
-              x: {
-                beginAtZero: true,
-                grid: { color: gridColor, drawBorder: false },
-                ticks: {
-                  color: '#9893a5',
-                  font: { size: 11 },
-                  callback: value => `${APP_CURRENCY.symbol}${Intl.NumberFormat('es-DO', { notation: 'compact', compactDisplay: 'short' }).format(value)}`
-                }
-              },
-              y: {
-                grid: { display: false },
-                ticks: {
-                  color: '#9893a5',
-                  font: { family: 'Inter, sans-serif', size: 12, weight: '500' },
-                  align: 'center',
-                  crossAlign: 'far',
-                  padding: 18
-                }
-              }
-            }
-          }
-        });
-      } catch (error) {
-      }
-    }
-
-    const incomeByDayCtx = getCtx('chartIncomeByDay');
-    if (incomeByDayCtx) {
-      try {
-        const dayLabels = Array.from({ length: 31 }, (_, index) => String(index + 1));
-        const maxIncome = Math.max(...incomeByDay, 0);
-        const greenBase = isDarkTheme ? '#46a987' : '#2D957B';
-        const colors = incomeByDay.map(value => {
-          if (!maxIncome) return 'rgba(148, 163, 184, 0.25)';
-          const intensity = value / maxIncome;
-          return colorWithAlpha(greenBase, 0.25 + intensity * 0.70);
-        });
-
-        chartIncomeByDay = new Chart(incomeByDayCtx, {
-          type: 'bar',
-          data: {
-            labels: dayLabels,
-            datasets: [{
-              label: 'Ingreso por dÃ­a del mes',
-              data: incomeByDay,
-              backgroundColor: colors,
-              borderRadius: 3,
-              borderWidth: 0,
-              barPercentage: 0.9,
-              categoryPercentage: 0.95
-            }]
-          },
-          options: {
-            ...baseOptions,
-            plugins: {
-              ...baseOptions.plugins,
-              legend: { display: false },
-              tooltip: {
-                ...baseOptions.plugins.tooltip,
-                callbacks: {
-                  title: context => `Día ${context[0].label}`,
-                  label: context => `${APP_CURRENCY.symbol}${CHART_CURRENCY_DETAILED.format(context.parsed.y || 0)}`
-                }
-              }
-            },
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: {
-                  color: 'rgba(100, 116, 139, 0.75)',
-                  maxRotation: 0,
-                  autoSkip: true,
-                  maxTicksLimit: 10
-                }
-              },
-              y: {
-                beginAtZero: true,
-                grid: { display: false },
-                ticks: { display: false }
-              }
-            }
-          }
-        });
-      } catch (error) {
-      }
-    }
-
-    const heatmapCtx = getCtx('chartHeatmap');
-    if (heatmapCtx) {
-      try {
-        const heatmapLabels = Array.from({ length: 31 }, (_, index) => String(index + 1));
-        const maxExpense = Math.max(...expenseByDay, 0);
-        const pinkBase = isDarkTheme ? '#EB6F92' : '#B4637A';
-        const colors = expenseByDay.map(value => {
-          if (!maxExpense) return 'rgba(148, 163, 184, 0.25)';
-          const intensity = value / maxExpense;
-          return colorWithAlpha(pinkBase, 0.25 + intensity * 0.70);
-        });
-
-        chartHeatmap = new Chart(heatmapCtx, {
-          type: 'bar',
-          data: {
-            labels: heatmapLabels,
-            datasets: [{
-              label: 'Gasto por dÃ­a del mes',
-              data: expenseByDay,
-              backgroundColor: colors,
-              borderRadius: 3,
-              borderWidth: 0,
-              barPercentage: 0.9,
-              categoryPercentage: 0.95
-            }]
-          },
-          options: {
-            ...baseOptions,
-            plugins: {
-              ...baseOptions.plugins,
-              legend: { display: false },
-              tooltip: {
-                ...baseOptions.plugins.tooltip,
-                callbacks: {
-                  title: context => `Día ${context[0].label}`,
-                  label: context => `${APP_CURRENCY.symbol}${CHART_CURRENCY_DETAILED.format(context.parsed.y || 0)}`
-                }
-              }
-            },
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: {
-                  color: 'rgba(100, 116, 139, 0.75)',
-                  maxRotation: 0,
-                  autoSkip: true,
-                  maxTicksLimit: 10
-                }
-              },
-              y: {
-                beginAtZero: true,
-                grid: { display: false },
-                ticks: { display: false }
-              }
-            }
-          }
-        });
-      } catch (error) {
-      }
+    if (window.EstadisticaCharts) {
+      window.EstadisticaCharts.renderizarGraficos(tx, {
+        formatCurrency: formatCurrencyCard,
+        appCurrency: APP_CURRENCY,
+        kpis: window.EstadisticaKPIs
+      });
     }
   }
 
   function exportarCsv(tx){
     const f = obtenerFiltros();
-    const meta = [`Generado`, new Date().toISOString(), `AÃƒÂ±o`, f.year==null? 'Todos': String(f.year), `Mes`, f.month==null? 'Todos': String(f.month+1)];
-    const rows = [meta, [], ['Tipo','Monto','DescripciÃƒÂ³n','Fecha','CategorÃƒÂ­a']];
+    const meta = [`Generado`, new Date().toISOString(), `Año`, f.year==null? 'Todos': String(f.year), `Mes`, f.month==null? 'Todos': String(f.month+1)];
+    const rows = [meta, [], ['Tipo','Monto','Descripción','Fecha','Categoría']];
     tx.forEach(t => rows.push([
       t.type==='income'?'Ingreso':'Gasto',
       String(t.amount),
@@ -1333,7 +517,7 @@ function colorWithAlpha(color, alpha = 1) {
       t.category
     ]));
     const csv = rows.map(r => r.map(v => /[",\n]/.test(v) ? '"'+String(v).replace(/"/g,'""')+'"' : v).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `finanzapp-estadisticas-${new Date().toISOString().split('T')[0]}.csv`;
@@ -1342,67 +526,11 @@ function colorWithAlpha(color, alpha = 1) {
 
   
 
-  let toastContainer = null;
-  function asegurarContenedorToast() {
-    if (!toastContainer) {
-      toastContainer = document.querySelector('.toast-container');
-    }
-    if (!toastContainer) {
-      toastContainer = document.createElement('div');
-      toastContainer.className = 'toast-container';
-      document.body.appendChild(toastContainer);
-    }
-  }
-
-  function ocultarToast(toast, immediate = false) {
-    if (!toast) return;
-    if (toast._timeout) { clearTimeout(toast._timeout); toast._timeout = null; }
-    toast.classList.remove('show');
-    toast.classList.add('hide');
-    const remove = () => { if (toast && toast.parentNode) toast.parentNode.removeChild(toast); };
-    if (immediate) { remove(); return; }
-    setTimeout(remove, 400);
-  }
-
   function mostrarToast(message, options = {}) {
     if (window.__appTooltips === false) return null;
-    const { variant = 'warning', duration = 3000 } = options || {};
-    asegurarContenedorToast();
-
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    if (variant) toast.classList.add(`toast-${variant}`);
-
-    const isAssertive = variant === 'error' || variant === 'warning';
-    toast.setAttribute('role', isAssertive ? 'alert' : 'status');
-    toast.setAttribute('aria-live', isAssertive ? 'assertive' : 'polite');
-    toast.setAttribute('aria-atomic', 'true');
-
-    const content = document.createElement('div');
-    content.className = 'toast-content';
-    content.textContent = String(message ?? '');
-
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'toast-close';
-    closeBtn.setAttribute('aria-label', 'Cerrar');
-    closeBtn.innerHTML = '&times;';
-    closeBtn.onclick = () => ocultarToast(toast);
-
-    toast.append(content, closeBtn);
-    toastContainer.appendChild(toast);
-
-    requestAnimationFrame(() => toast.classList.add('show'));
-
-    if (duration && Number.isFinite(duration) && duration > 0) {
-      toast._timeout = setTimeout(() => ocultarToast(toast), duration);
-    }
-
-    while (toastContainer.children.length > 3) {
-      const first = toastContainer.firstElementChild;
-      ocultarToast(first, true);
-    }
-
-    return toast;
+    const variant = typeof options === 'string' ? options : (options?.variant || 'info');
+    const duration = typeof options === 'object' && options?.duration ? options.duration : 3000;
+    if (window.Toast) return window.Toast.show(message, variant, duration);
   }
 
   function mostrarExito(mensaje, options = {}) {
@@ -1410,7 +538,7 @@ function colorWithAlpha(color, alpha = 1) {
   }
 
   function mostrarInfo(mensaje, options = {}) {
-    return mostrarToast(mensaje, { variant: 'warning', duration: 3000, ...(options || {}) });
+    return mostrarToast(mensaje, { variant: 'info', duration: 3000, ...(options || {}) });
   }
 
   function configurarDropdown(dropdownEl, onChange){
@@ -1439,13 +567,23 @@ function colorWithAlpha(color, alpha = 1) {
     options.forEach(option => {
       option.addEventListener('click', (e) => {
         e.stopPropagation();
-        const value = option.getAttribute('data-value');
-        const text = option.textContent;
-        selected.querySelector('span').textContent = text;
-        selected.setAttribute('data-value', value);
-        dropdownEl.querySelectorAll('.custom-dropdown-option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-selected','false'); });
-        option.classList.add('selected');
-        option.setAttribute('aria-selected','true');
+        const isAlreadySelected = option.classList.contains('selected');
+        if (isAlreadySelected) {
+          option.classList.remove('selected');
+          option.setAttribute('aria-selected', 'false');
+          const isYear = dropdownEl.id === 'yearFilter';
+          const defaultText = isYear ? 'Todos los años' : 'Todos los meses';
+          selected.querySelector('span').textContent = defaultText;
+          selected.setAttribute('data-value', '');
+        } else {
+          const value = option.getAttribute('data-value');
+          const text = option.textContent;
+          selected.querySelector('span').textContent = text;
+          selected.setAttribute('data-value', value);
+          dropdownEl.querySelectorAll('.custom-dropdown-option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-selected','false'); });
+          option.classList.add('selected');
+          option.setAttribute('aria-selected','true');
+        }
         dropdownEl.classList.remove('open');
         selected.setAttribute('aria-expanded', 'false');
         if (onChange) onChange();
@@ -1505,9 +643,6 @@ function colorWithAlpha(color, alpha = 1) {
 
     const clearBtn = document.getElementById('clearFiltersBtn');
     if (clearBtn) clearBtn.addEventListener('click', () => {
-      const currentFilters = cargarFiltrosPersistidos();
-      const hadActiveFilters = (currentFilters.year !== null && currentFilters.year !== undefined) || (currentFilters.month !== null && currentFilters.month !== undefined);
-
       guardarFiltrosPersistidos({ year: null, month: null });
       const ySel = yearDD?.querySelector('.custom-dropdown-selected');
       const mSel = monthDD?.querySelector('.custom-dropdown-selected');
@@ -1525,11 +660,7 @@ function colorWithAlpha(color, alpha = 1) {
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
 
-      if (hadActiveFilters) {
-        mostrarExito('Filtros limpiados');
-      } else {
-        mostrarInfo('No hay filtros activos');
-      }
+      mostrarExito('Filtros limpiados');
     });
 
     actualizarIndicadoresFiltrosActivos();
@@ -1684,13 +815,21 @@ function colorWithAlpha(color, alpha = 1) {
       //    sin esperar a Firebase. Esto elimina el delay de 5-8 segundos.
       let renderizadoInicial = false;
       try {
-        const authUser = localStorage.getItem('authUser');
-        if (authUser && authUser !== 'guest') {
-          const profile = JSON.parse(authUser);
-          const userId = profile.uid || profile.email || 'guest';
-          const LS_PREFIX = 'finanzapp:data:v1';
-          const rawCategories = localStorage.getItem(`${LS_PREFIX}:${userId}:categories`);
-          const rawTransactions = localStorage.getItem(`${LS_PREFIX}:${userId}:transactions`);
+        const userId = (typeof window !== 'undefined' && window.AuthService)
+          ? window.AuthService.getUserId()
+          : (() => {
+              try {
+                const authUser = localStorage.getItem('authUser');
+                if (authUser && authUser !== 'guest') {
+                  const profile = JSON.parse(authUser);
+                  return profile.uid || profile.email || 'guest';
+                }
+              } catch {}
+              return 'guest';
+            })();
+        const LS_PREFIX = 'finanzapp:data:v1';
+        const rawCategories = localStorage.getItem(`${LS_PREFIX}:${userId}:categories`);
+        const rawTransactions = localStorage.getItem(`${LS_PREFIX}:${userId}:transactions`);
 
           if (rawCategories) {
             const localData = {
@@ -1749,7 +888,6 @@ function colorWithAlpha(color, alpha = 1) {
             ocultarEsqueletos();
             renderizadoInicial = true;
           }
-        }
       } catch (e) {
         console.warn('[Estadistica] Error en carga optimista local:', e);
       }
@@ -1757,7 +895,18 @@ function colorWithAlpha(color, alpha = 1) {
       // 4. Inicializar Firebase y sincronizar en background
       //    Si ya renderizamos con datos locales, esto actualiza silenciosamente.
       try {
-        if (window.firebase) {
+        const _isGuestEstadistica = (typeof window !== 'undefined' && window.AuthService)
+          ? window.AuthService.isGuest()
+          : (() => {
+              try {
+                const raw = localStorage.getItem('authUser');
+                if (!raw) return true;
+                const u = JSON.parse(raw);
+                return u.uid === 'guest' || u.provider === 'guest' || !u.uid;
+              } catch { return true; }
+            })();
+
+        if (!_isGuestEstadistica && window.firebase) {
           if (window.FirestoreDB) {
             window.FirestoreDB.ensureFirebaseInitialized();
           } else if (!firebase.apps.length) {

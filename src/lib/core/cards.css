@@ -1,0 +1,102 @@
+/**
+ * FinanzApp - Centralized Cards & Summary Cards System
+ */
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg, 20px);
+  padding: 24px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-header { 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg, 20px);
+  padding: 20px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.summary-card .card-title { 
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-card .card-title i,
+.summary-card .card-title svg,
+.summary-card .card-title .lucide {
+  width: 18px;
+  height: 18px;
+}
+
+.summary-card .card-value { 
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--light);
+}
+
+.summary-card .card-change { 
+  font-size: 12px;
+  color: var(--gray);
+}
+
+/* Status variants */
+.summary-card.income .card-title i,
+.summary-card.income .card-title svg,
+.summary-card.daily-income .card-title i,
+.summary-card.daily-income .card-title svg {
+  color: var(--success);
+}
+
+.summary-card.expenses .card-title i,
+.summary-card.expenses .card-title svg,
+.summary-card.daily-expense .card-title i,
+.summary-card.daily-expense .card-title svg {
+  color: var(--danger);
+}
+
+.summary-card.balance .card-title i,
+.summary-card.balance .card-title svg,
+.summary-card.net-daily .card-title i,
+.summary-card.net-daily .card-title svg {
+  color: var(--accent);
+}
+
+.summary-card.misc .card-title i,
+.summary-card.misc .card-title svg {
+  color: var(--warning);
+}
+
+.summary-card.misc .card-value {
+  color: var(--warning);
+}
+
+[data-theme="light"] .summary-card {
+  background: var(--card-bg);
+  border: 2px solid rgba(224, 222, 244, 0.08);
+}
+

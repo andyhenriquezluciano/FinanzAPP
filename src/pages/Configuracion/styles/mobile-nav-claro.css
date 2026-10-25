@@ -1,0 +1,27 @@
+/* ==========================================================================
+   FinanzApp - Configuracion: Mobile Navigation (Tema Claro)
+   Single Responsibility: Reglas visuales para navegación móvil en tema claro
+   ========================================================================== */
+
+[data-theme="light"] .mobile-actions-panel {
+  background: #fffaf3;
+  border-color: rgba(180, 99, 122, 0.2);
+}
+
+[data-theme="light"] .mobile-actions-header {
+  border-bottom-color: rgba(180, 99, 122, 0.15);
+}
+
+[data-theme="light"] .mobile-bottom-nav {
+  background: rgba(255, 250, 243, 0.95);
+  border-top-color: rgba(180, 99, 122, 0.2);
+}
+
+[data-theme="light"] .mobile-nav-item {
+  color: #797593;
+}
+
+[data-theme="light"] .mobile-nav-item.active {
+  color: var(--primary, #b4637a);
+}
+

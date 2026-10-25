@@ -1,17 +1,8 @@
-/**
- * @fileoverview Importador inteligente de extractos bancarios para FinanzApp.
- *
- * Analiza archivos CSV/TXT de extractos bancarios, autodetecta columnas y delimitadores,
- * extrae fechas, montos y descripciones, y auto-sugiere categorías mediante MerchantCategorizer.
- */
+/** * @fileoverview Importador inteligente de extractos bancarios para FinanzApp. */
 
 const categorizer = (typeof window !== 'undefined' && window.MerchantCategorizer) || (typeof globalThis !== 'undefined' && globalThis.MerchantCategorizer);
 
-  /**
-   * Detecta el delimitador más probable de un archivo CSV basado en las primeras líneas.
-   * @param {string} content
-   * @returns {string}
-   */
+  /** * Detecta el delimitador más probable de un archivo CSV basado en las primeras líneas. */
   function detectDelimiter(content) {
     const sample = (content || '').split('\n').slice(0, 5).join('\n');
     const delimiters = [',', ';', '\t', '|'];
@@ -28,12 +19,7 @@ const categorizer = (typeof window !== 'undefined' && window.MerchantCategorizer
     return bestDelim;
   }
 
-  /**
-   * Divide una línea CSV respetando comillas y caracteres de escape.
-   * @param {string} line
-   * @param {string} delimiter
-   * @returns {Array<string>}
-   */
+  /** * Divide una línea CSV respetando comillas y caracteres de escape. */
   function splitCsvLine(line, delimiter = ',') {
     const result = [];
     let current = '';
@@ -59,11 +45,7 @@ const categorizer = (typeof window !== 'undefined' && window.MerchantCategorizer
     return result;
   }
 
-  /**
-   * Normaliza un número parseándolo de formatos dominicanos o internacionales.
-   * @param {string|number} value
-   * @returns {number|null}
-   */
+  /** * Normaliza un número parseándolo de formatos dominicanos o internacionales. */
   function parseAmount(value) {
     if (typeof value === 'number') return Number.isFinite(value) ? value : null;
     let raw = String(value || '').trim();
@@ -85,11 +67,7 @@ const categorizer = (typeof window !== 'undefined' && window.MerchantCategorizer
     return isNegative ? -Math.abs(n) : Math.abs(n);
   }
 
-  /**
-   * Parsea cadenas de fecha comunes en portales bancarios.
-   * @param {string} rawDate
-   * @returns {Date|null}
-   */
+  /** * Parsea cadenas de fecha comunes en portales bancarios. */
   function parseDate(rawDate) {
     if (!rawDate) return null;
     const clean = String(rawDate).trim();
@@ -112,11 +90,7 @@ const categorizer = (typeof window !== 'undefined' && window.MerchantCategorizer
     return !isNaN(standard.getTime()) ? standard : null;
   }
 
-  /**
-   * Identifica los índices de columnas relevantes en la fila de cabeceras.
-   * @param {Array<string>} headers
-   * @returns {Object}
-   */
+  /** * Identifica los índices de columnas relevantes en la fila de cabeceras. */
   function detectColumns(headers) {
     const mapping = {
       dateIndex: -1,
@@ -148,14 +122,7 @@ const categorizer = (typeof window !== 'undefined' && window.MerchantCategorizer
     return mapping;
   }
 
-  /**
-   * Parsea un extracto bancario CSV completo y genera filas enriquecidas listas para importar.
-   *
-   * @param {string} csvContent - Contenido crudo del archivo
-   * @param {Array} availableCategories - Categorías actuales para auto-categorización
-   * @param {Object} [options]
-   * @returns {Object}
-   */
+  /** * Parsea un extracto bancario CSV completo y genera filas enriquecidas listas para importar. */
   function parseStatement(csvContent, availableCategories = [], options = {}) {
     if (!csvContent || typeof csvContent !== 'string') {
       return { success: false, error: 'El archivo está vacío o no es una cadena válida.', rows: [] };

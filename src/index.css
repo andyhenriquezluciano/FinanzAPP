@@ -2,7 +2,7 @@
 
 :root {
   --primary: #eb6f92;
-  --primary-hover: #d4637e;
+  
   --secondary: #31748f;
   --teal: #9ccfd8;
   --gold: #f6c177;
@@ -233,7 +233,7 @@ nav {
   gap: 8px;
   background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: var(--primary);
-  border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
+  border: 2px solid color-mix(in srgb, var(--primary) 28%, transparent);
   padding: 6px 18px;
   border-radius: 999px;
   font-size: 0.88rem;

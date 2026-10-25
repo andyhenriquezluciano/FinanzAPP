@@ -7,11 +7,12 @@
  *  - Network-Only bypass para Firebase Auth, Firestore y APIs bancarias.
  */
 
-const CACHE_NAME = 'finanzapp-cache-v2.4.0';
+const CACHE_NAME = 'finanzapp-cache-v2.4.1';
 
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
+  '/index.css',
   '/manifest.json',
   '/Icons/android-chrome-192x192.png',
   '/Icons/android-chrome-512x512.png',
@@ -20,17 +21,26 @@ const PRECACHE_ASSETS = [
   '/assets/logo-f-claro.png',
   '/assets/logo-oscuro-square.png',
   '/assets/logo-claro-square.png',
-  '/css/theme.css',
-  '/css/shared.css'
+  '/lib/UI.css',
+  '/lib/shared-mobile-nav.css',
+  '/lib/toast.css',
+  '/pages/Categorias/Categorias.html',
+  '/pages/Presupuestos/Presupuestos.html',
+  '/pages/Estadistica/Estadistica.html',
+  '/pages/Configuracion/Configuracion.html'
 ];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('[SW] Fallo precaché inicial de algunos recursos (no crítico):', err);
-      });
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.allSettled(
+        PRECACHE_ASSETS.map((asset) =>
+          cache.add(asset).catch((err) => {
+            console.warn('[SW] Fallo al precachear recurso:', asset, err);
+          })
+        )
+      );
     })
   );
 });

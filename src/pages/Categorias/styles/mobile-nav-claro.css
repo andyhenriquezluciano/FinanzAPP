@@ -1,0 +1,66 @@
+/* ==========================================================================
+   FinanzApp - Categorias: Mobile Navigation (Tema Claro)
+   Single Responsibility: Reglas visuales para navegación móvil en tema claro
+   ========================================================================== */
+
+[data-theme="light"] .mobile-actions-toggle-badge {
+  background: var(--primary, #b4637a);
+  color: #fffaf3;
+}
+
+[data-theme="light"] .mobile-notifications-panel .gmail-notif-item:hover,
+[data-theme="light"] .mobile-notifications-panel .gmail-notif-item:active {
+  background: rgba(180, 99, 122, 0.08);
+}
+
+[data-theme="light"] .mobile-notifications-panel .gmail-notif-merchant {
+  color: #575279;
+}
+
+[data-theme="light"] .mobile-actions-subpanel-input {
+  background: #fffaf3;
+  color: #575279;
+}
+
+[data-theme="light"] .mobile-actions-subpanel-input:focus {
+  background: #fffaf3;
+  border-color: var(--primary, #b4637a);
+}
+
+[data-theme="light"] .mobile-actions-subpanel {
+  scrollbar-color: rgba(180, 99, 122, 0.7) transparent;
+}
+
+[data-theme="light"] .mobile-actions-badge {
+  background: #b4637a;
+  color: #ffffff;
+}
+
+[data-theme="light"] .mobile-actions-panel {
+  background: #fffaf3;
+  border-color: rgba(180, 99, 122, 0.2);
+}
+
+[data-theme="light"] .mobile-actions-header {
+  border-bottom-color: rgba(180, 99, 122, 0.15);
+}
+
+[data-theme="light"] .mobile-actions-btn {
+  background: #f2e9e1;
+  color: #575279;
+}
+
+[data-theme="light"] .mobile-actions-btn:hover {
+  background: #ebdcd0;
+}
+
+[data-theme="light"] .mobile-actions-option {
+  color: #575279;
+}
+
+[data-theme="light"] .mobile-actions-option:hover,
+[data-theme="light"] .mobile-actions-option.active {
+  background: rgba(180, 99, 122, 0.12);
+  color: #b4637a;
+}
+

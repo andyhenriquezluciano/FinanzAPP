@@ -78,7 +78,7 @@
     backFromRecoveryBtn.addEventListener('click', () => showScreen(emailLoginScreen));
   }
 
-  const DEFAULT_SETTINGS = {
+  const DEFAULT_SETTINGS = window.Helpers?.DEFAULT_SETTINGS || {
     theme: 'dark',
     categoryViewMode: 'compact',
     currency: 'DOP',
@@ -108,15 +108,19 @@
   if (loginAsGuestBtn) {
     loginAsGuestBtn.addEventListener('click', () => {
       asegurarConfiguracionPorDefecto();
-      const guestProfile = {
-        provider: 'guest',
-        uid: 'guest',
-        name: 'Invitado',
-        email: '',
-        picture: ''
-      };
-      localStorage.setItem('loggedIn', '1');
-      localStorage.setItem('authUser', JSON.stringify(guestProfile));
+      if (typeof window !== 'undefined' && window.AuthService) {
+        window.AuthService.setUser('guest');
+      } else {
+        const guestProfile = {
+          provider: 'guest',
+          uid: 'guest',
+          name: 'Invitado',
+          email: '',
+          picture: ''
+        };
+        localStorage.setItem('loggedIn', '1');
+        localStorage.setItem('authUser', JSON.stringify(guestProfile));
+      }
       window.location.href = '../Categorias/Categorias.html';
     });
   }
@@ -164,7 +168,7 @@
         if (window.FirestoreDB && result.user) {
           await window.FirestoreDB.init();
           window.FirestoreDB.setCurrentUser(result.user.uid);
-          const userData = await window.FirestoreDB.loadAllUserData();
+          const userData = await window.FirestoreDB.loadAll(true);
           if ((!userData || (!userData.transactions || userData.transactions.length === 0)) 
               && localStorage.getItem('transactions')) {
             await window.FirestoreDB.migrateFromLocalStorage();
@@ -405,7 +409,7 @@
                 await window.FirestoreDB.init();
                 window.FirestoreDB.setCurrentUser(result.user.uid);
                 
-                const userData = await window.FirestoreDB.loadAllUserData();
+                const userData = await window.FirestoreDB.loadAll(true);
                 
                 if ((!userData || (!userData.transactions || userData.transactions.length === 0)) 
                     && localStorage.getItem('transactions')) {

@@ -137,6 +137,17 @@ async function processHtml(filePath) {
   let html = await fs.readFile(filePath, 'utf8');
   const relativeDir = path.dirname(path.relative(OUT, filePath));
 
+  // 0) Procesar partials <!-- @include partials/... -->
+  html = await replaceAsync(html, /<!--\s*@include\s+([^\s]+)\s*-->/gi, async (match, partialRelPath) => {
+    const partialPath = path.join(SRC, partialRelPath);
+    try {
+      return await fs.readFile(partialPath, 'utf8');
+    } catch (err) {
+      console.warn(`[Build] Warning: No se encontró el partial ${partialRelPath}:`, err.message);
+      return match;
+    }
+  });
+
   // 1) Extraer scripts inline
   const inlineScriptRe = /<script(\s[^>]*)?>([\s\S]*?)<\/script>/gi;
   const inlineMatches = [...html.matchAll(inlineScriptRe)];
@@ -240,8 +251,10 @@ async function build() {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
       const p = path.join(dir, entry.name);
-      if (entry.isDirectory()) await collectHtml(p);
-      else if (entry.name.endsWith('.html')) htmlFiles.push(p);
+      if (entry.isDirectory()) {
+        if (entry.name === 'partials') continue;
+        await collectHtml(p);
+      } else if (entry.name.endsWith('.html')) htmlFiles.push(p);
     }
   }
   await collectHtml(OUT);

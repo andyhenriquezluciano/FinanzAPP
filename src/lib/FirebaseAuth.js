@@ -137,18 +137,19 @@ class FirebaseAuth {
             // Si la sesión actual en localStorage es de un usuario invitado (modo invitado),
             // NO debemos eliminar loggedIn ni authUser, ya que el modo invitado funciona
             // exclusivamente con datos locales sin cuenta de Firebase.
-            const authUserRaw = localStorage.getItem('authUser');
-            let isGuest = false;
-            try {
-              if (authUserRaw === 'guest') {
-                isGuest = true;
-              } else if (authUserRaw) {
-                const parsed = JSON.parse(authUserRaw);
-                if (parsed && (parsed.provider === 'guest' || parsed.uid === 'guest' || !parsed.uid)) {
-                  isGuest = true;
-                }
-              }
-            } catch (e) {}
+            const isGuest = (typeof window !== 'undefined' && window.AuthService)
+              ? window.AuthService.isGuest()
+              : (() => {
+                  try {
+                    const raw = localStorage.getItem('authUser');
+                    if (raw === 'guest') return true;
+                    if (raw) {
+                      const p = JSON.parse(raw);
+                      return p && (p.provider === 'guest' || p.uid === 'guest' || !p.uid);
+                    }
+                  } catch {}
+                  return false;
+                })();
 
             if (!isGuest) {
               // No hay usuario y no es invitado: limpiar datos de sesión

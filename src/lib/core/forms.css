@@ -1,0 +1,254 @@
+/**
+ * FinanzApp - Centralized Forms & Inputs System
+ */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label,
+.form-label { 
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--light);
+  font-size: 14px;
+  padding-left: var(--form-label-indent, 4px);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--card-bg, #1f1d2e);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-md, 12px);
+  color: var(--light);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-control::placeholder {
+  color: var(--gray);
+  opacity: 0.7;
+}
+
+select.form-control {
+  cursor: pointer;
+}
+
+/* Light Theme Overrides */
+[data-theme="light"] .form-control {
+  background: var(--card-bg, #fffaf3);
+  color: var(--light);
+}
+
+/* ==========================================================================
+   Filtros y Dropdowns Centralizados
+   ========================================================================== */
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+}
+
+.filter-group {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: #1f1d2e;
+  transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.filter-group label {
+  font-size: 14px;
+  color: #e0def4;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.filter-group:focus-within,
+.filter-group:has(.custom-dropdown.open) {
+  border-color: transparent;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 100%, transparent);
+}
+
+.filter-group:focus-within label {
+  color: var(--primary);
+}
+
+/* Dropdown Personalizado Base */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.filter-controls .custom-dropdown {
+  position: static;
+  width: auto;
+}
+
+.custom-dropdown-selected {
+  width: 100%;
+  padding: 6px 2px;
+  background: #1f1d2e;
+  border: none;
+  border-radius: 12px;
+  color: #e0def4;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.3s ease, color 0.2s ease;
+  gap: 12px;
+}
+
+.filter-controls .custom-dropdown-selected {
+  background: transparent;
+}
+
+.custom-dropdown-selected i,
+.custom-dropdown-selected svg {
+  transition: transform 0.3s ease;
+  color: var(--gray, #908caa);
+  font-size: 12px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.custom-dropdown.open .custom-dropdown-selected i,
+.custom-dropdown.open .custom-dropdown-selected svg {
+  transform: rotate(180deg);
+}
+
+.custom-dropdown-options {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #1f1d2e;
+  padding: 4px;
+  border: 2px solid var(--gray, #6e6a86);
+  border-radius: 12px;
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary, #eb6f92) transparent;
+  box-sizing: border-box;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.filter-controls .custom-dropdown-options {
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-width: 100%;
+  margin-top: 0;
+}
+
+.custom-dropdown.open .custom-dropdown-options {
+  display: block;
+}
+
+.custom-dropdown-option {
+  padding: 10px 14px;
+  color: var(--light, #e0def4);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.custom-dropdown-option:hover,
+.custom-dropdown-option:focus,
+.custom-dropdown-option[data-highlighted="true"] {
+  background: color-mix(in srgb, var(--gray, #6e6a86) 22%, transparent);
+  color: var(--light, #e0def4);
+  outline: none;
+}
+
+.custom-dropdown-option.selected {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* Color inactivo de dropdowns de filtro: gris igual a 'Buscar transacciones...' */
+.filter-controls .custom-dropdown-selected,
+.filter-controls .custom-dropdown-selected span,
+.filter-controls .custom-dropdown-selected i,
+.filter-controls .custom-dropdown-selected svg {
+  color: #6e6a86;
+}
+
+/* Estado activo de dropdowns de filtro */
+.custom-dropdown.filter-active .custom-dropdown-selected,
+.custom-dropdown.filter-active .custom-dropdown-selected span,
+.custom-dropdown.filter-active .custom-dropdown-selected i,
+.custom-dropdown.filter-active .custom-dropdown-selected svg,
+.filter-controls .custom-dropdown.filter-active .custom-dropdown-selected,
+.filter-controls .custom-dropdown.filter-active .custom-dropdown-selected span,
+.filter-controls .custom-dropdown.filter-active .custom-dropdown-selected i,
+.filter-controls .custom-dropdown.filter-active .custom-dropdown-selected svg {
+  color: var(--primary);
+}
+
+/* Light Theme Overrides para Filtros y Dropdowns */
+[data-theme="light"] .filter-group {
+  background: #fffaf3;
+}
+
+[data-theme="light"] .filter-group label {
+  color: #575279;
+}
+
+[data-theme="light"] .filter-controls .custom-dropdown-selected,
+[data-theme="light"] .filter-controls .custom-dropdown-selected span,
+[data-theme="light"] .filter-controls .custom-dropdown-selected i,
+[data-theme="light"] .filter-controls .custom-dropdown-selected svg {
+  color: #797593;
+}
+
+[data-theme="light"] .custom-dropdown-options {
+  background: #fffaf3;
+  border-color: var(--gray);
+  scrollbar-color: var(--primary) transparent;
+  box-shadow: 0 10px 25px rgba(121, 117, 147, 0.15);
+}
+
+[data-theme="light"] .custom-dropdown-option {
+  color: #575279;
+}
+
+[data-theme="light"] .custom-dropdown-option:hover,
+[data-theme="light"] .custom-dropdown-option:focus {
+  background: #f5efea;
+  color: #575279;
+}
+
+[data-theme="light"] .custom-dropdown-option.selected {
+  background: var(--primary);
+  color: #ffffff;
+}

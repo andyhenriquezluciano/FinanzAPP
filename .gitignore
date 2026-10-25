@@ -9,6 +9,10 @@ __config.js
 src/__config.js
 .sri-cache.json
 
+# Test artifacts
+test-results/
+playwright-report/
+
 # Firebase Cache & Debug logs
 .firebase/
 .firebaserc
@@ -47,3 +51,5 @@ tmp_gmailPoller_logs_utf8.txt
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+.archify/

@@ -175,9 +175,12 @@ nav {
   align-items: center;
   justify-content: center;
   margin: 0 auto 24px;
-  font-size: 30px;
   color: #fff;
   box-shadow: 0 8px 32px rgba(235,111,146,0.30);
+}
+.hero-icon svg {
+  width: 38px;
+  height: 38px;
 }
 .hero h1 {
   font-size: 2.2rem;
@@ -200,7 +203,6 @@ nav {
   color: #e0def4; 
   padding-bottom: 12px;
   margin-top: 16px;
-  border-bottom: 1px solid rgba(224,222,244,0.06);
 }
 .mt-4 { margin-top: 24px; }
 

@@ -182,6 +182,10 @@ class GmailAPI {
         const u = window.firebaseAuth.getCurrentUser();
         if (u && u.uid && u.uid !== 'guest') return u.uid;
       }
+      if (typeof window !== 'undefined' && window.AuthService) {
+        const uid = window.AuthService.getUserId();
+        if (uid && uid !== 'guest') return uid;
+      }
       const raw = localStorage.getItem('authUser');
       if (raw) {
         try {

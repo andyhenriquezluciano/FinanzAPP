@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '../src/lib/Helpers.js';
 
 const Helpers = window.Core?.helpers;
@@ -180,6 +180,82 @@ describe('Helpers - Utilidades Financieras, Seguridad y Formato', () => {
       expect(filters.year).toBeNull();
       expect(filters.month).toBeNull();
       expect(filters.searchTerm).toBe('');
+    });
+  });
+
+  describe('Redondeo Seguro de Coma Flotante (Helpers.round2)', () => {
+    it('debe redondear números a 2 decimales con precisión epsilon', () => {
+      expect(Helpers.round2(1.005)).toBe(1.01);
+      expect(Helpers.round2(0.1 + 0.2)).toBe(0.3);
+      expect(Helpers.round2(10.555)).toBe(10.56);
+      expect(Helpers.round2(10.554)).toBe(10.55);
+      expect(Helpers.round2('123.456')).toBe(123.46);
+      expect(Helpers.round2(0)).toBe(0);
+    });
+
+    it('debe soportar cantidad personalizada de decimales', () => {
+      expect(Helpers.round2(1.23456, 3)).toBe(1.235);
+      expect(Helpers.round2(1.23456, 1)).toBe(1.2);
+      expect(Helpers.round2(1.23456, 0)).toBe(1);
+    });
+  });
+
+  describe('Generador Universal de IDs (Helpers.generateId)', () => {
+    it('debe generar IDs únicos con y sin prefijo', () => {
+      const id1 = Helpers.generateId();
+      const id2 = Helpers.generateId('cat');
+      const id3 = Helpers.generateId('budget');
+
+      expect(typeof id1).toBe('string');
+      expect(id1.includes('_')).toBe(true);
+      expect(id2.startsWith('cat_')).toBe(true);
+      expect(id3.startsWith('budget_')).toBe(true);
+      expect(id1).not.toBe(id2);
+    });
+  });
+
+  describe('Parsing Universal de Fechas (Helpers.parseDateInput)', () => {
+    it('debe parsear fechas en formato ISO YYYY-MM-DD', () => {
+      const d = Helpers.parseDateInput('2026-05-15');
+      expect(d).toBeInstanceOf(Date);
+      expect(d.getFullYear()).toBe(2026);
+      expect(d.getMonth()).toBe(4); // Mayo = 4
+      expect(d.getDate()).toBe(15);
+    });
+
+    it('debe parsear fechas en formato DD/MM/YYYY o DD.MM.YYYY', () => {
+      const d1 = Helpers.parseDateInput('25/12/2026');
+      expect(d1).toBeInstanceOf(Date);
+      expect(d1.getFullYear()).toBe(2026);
+      expect(d1.getMonth()).toBe(11); // Dic = 11
+      expect(d1.getDate()).toBe(25);
+
+      const d2 = Helpers.parseDateInput('10.08.2026');
+      expect(d2).toBeInstanceOf(Date);
+      expect(d2.getFullYear()).toBe(2026);
+      expect(d2.getMonth()).toBe(7); // Agosto = 7
+      expect(d2.getDate()).toBe(10);
+    });
+
+    it('debe respetar el formato MDY cuando esté configurado en settings', () => {
+      localStorage.setItem('finanzapp:settings:v1', JSON.stringify({ dateFormat: 'mdy' }));
+      const d = Helpers.parseDateInput('08/25/2026');
+      expect(d).toBeInstanceOf(Date);
+      expect(d.getFullYear()).toBe(2026);
+      expect(d.getMonth()).toBe(7); // Agosto = 7
+      expect(d.getDate()).toBe(25);
+    });
+
+    it('debe retornar null para entradas vacías, inválidas o malformadas', () => {
+      expect(Helpers.parseDateInput('')).toBeNull();
+      expect(Helpers.parseDateInput(null)).toBeNull();
+      expect(Helpers.parseDateInput(undefined)).toBeNull();
+      expect(Helpers.parseDateInput('fecha-invalida')).toBeNull();
+      expect(Helpers.parseDateInput('2026/01')).toBeNull();
+    });
+
+    it('parseFechaInput debe ser un alias exacto de parseDateInput', () => {
+      expect(Helpers.parseFechaInput('2026-03-20')?.getDate()).toBe(20);
     });
   });
 

@@ -6,11 +6,7 @@ class FirestoreDB {
     this._unsubscribeSnapshot = null;
   }
 
-  /**
-   * Garantiza que Firebase App y App Check estén inicializados juntos.
-   * Se invoca automáticamente antes de cualquier operación de Auth o Firestore.
-   * @returns {boolean}
-   */
+  // Garantiza que Firebase App y App Check estén inicializados juntos.
   static ensureFirebaseInitialized() {
     if (!window.firebase) return false;
 
@@ -30,7 +26,7 @@ class FirestoreDB {
         if (isLocalhost) {
           try {
             self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-          } catch {}
+          } catch (e) { console.warn('[FirestoreDB] Ignored error:', e); }
         }
 
         const appCheckEnabled = window.APP_CONFIG?.appCheckEnabled === true;
@@ -59,20 +55,7 @@ class FirestoreDB {
     return FirestoreDB.ensureFirebaseInitialized();
   }
 
-  /**
-   * Espera a que Firebase Auth resuelva el estado de autenticación.
-   * Devuelve el UID del usuario autenticado, o null si no hay sesión real.
-   *
-   * IMPORTANTE: NO resuelve en la primera emisión null de onAuthStateChanged —
-   * Firebase siempre emite null primero mientras restaura la sesión desde IndexedDB.
-   * Solo resuelve cuando:
-   *   1. Un usuario real (con UID) aparece en onAuthStateChanged.
-   *   2. El timer expira → devuelve null (sin fallback a localStorage, porque
-   *      un UID de localStorage sin token Firebase real causa "Missing or insufficient permissions").
-   *
-   * @param {number} [timeoutMs=5000]
-   * @returns {Promise<string|null>}
-   */
+  // Espera a que Firebase Auth resuelva el estado de autenticación.
   waitForAuth(timeoutMs = 5000) {
     return new Promise((resolve) => {
       if (!FirestoreDB.ensureFirebaseInitialized()) { resolve(null); return; }
@@ -84,7 +67,7 @@ class FirestoreDB {
           resolve(current.uid);
           return;
         }
-      } catch {}
+      } catch (e) { console.warn('[FirestoreDB] Ignored error:', e); }
 
       let unsubscribe;
       let resolved = false;
@@ -92,7 +75,7 @@ class FirestoreDB {
       const doResolve = (uid) => {
         if (resolved) return;
         resolved = true;
-        try { if (typeof unsubscribe === 'function') unsubscribe(); } catch {}
+        try { if (typeof unsubscribe === 'function') unsubscribe(); } catch (e) { console.warn('[FirestoreDB] Ignored error:', e); }
         resolve(uid);
       };
 
@@ -122,6 +105,20 @@ class FirestoreDB {
       this.db = firebase.firestore();
       this.initialized = true;
 
+      // Habilitar persistencia offline con sincronización entre pestañas
+      if (!FirestoreDB._persistenceInitialized && typeof this.db.enablePersistence === 'function') {
+        FirestoreDB._persistenceInitialized = true;
+        this.db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+          if (err.code === 'failed-precondition') {
+            console.warn('[FirestoreDB] Persistencia offline: múltiples pestañas abiertas simultáneamente.');
+          } else if (err.code === 'unimplemented') {
+            console.warn('[FirestoreDB] Persistencia offline: navegador no soporta IndexedDB.');
+          } else {
+            console.warn('[FirestoreDB] Error habilitando persistencia offline:', err);
+          }
+        });
+      }
+
       if (userId) {
         this.currentUserId = userId;
       } else {
@@ -129,9 +126,16 @@ class FirestoreDB {
         if (auth.currentUser) {
           this.currentUserId = auth.currentUser.uid;
         } else {
-          const authUser = localStorage.getItem('authUser');
-          if (authUser) {
-            try { this.currentUserId = JSON.parse(authUser).uid; } catch {}
+          const uid = (typeof window !== 'undefined' && window.AuthService)
+            ? window.AuthService.getUserId()
+            : null;
+          if (uid && uid !== 'guest') {
+            this.currentUserId = uid;
+          } else {
+            const authUser = localStorage.getItem('authUser');
+            if (authUser && authUser !== 'guest') {
+              try { this.currentUserId = JSON.parse(authUser).uid; } catch (e) { console.warn('[FirestoreDB] Ignored error:', e); }
+            }
           }
         }
       }
@@ -167,10 +171,7 @@ class FirestoreDB {
     return this._userDoc().collection('transactions');
   }
 
-  /**
-   * Guarda transacciones en lotes de hasta 450 documentos (límite de Firestore: 500 ops/batch).
-   * @param {Array<Object>} transactions
-   */
+  // Guarda transacciones en lotes de hasta 450 documentos (límite de Firestore: 500 ops/batch).
   async _batchSaveTransactions(transactions) {
     if (!Array.isArray(transactions) || transactions.length === 0) return;
     const txCol = this._txCollection();
@@ -200,10 +201,7 @@ class FirestoreDB {
     }
   }
 
-  /**
-   * Guarda o actualiza una transacción individual en la subcolección.
-   * @param {Object} tx
-   */
+  // Guarda o actualiza una transacción individual en la subcolección.
   async saveTransaction(tx) {
     if (!await this.ensureUserContext()) return false;
     if (!tx || !tx.id) return false;
@@ -219,10 +217,7 @@ class FirestoreDB {
     return true;
   }
 
-  /**
-   * Elimina una transacción individual de la subcolección.
-   * @param {string} txId
-   */
+  // Elimina una transacción individual de la subcolección.
   async deleteTransaction(txId) {
     if (!await this.ensureUserContext()) return false;
     if (!txId) return false;
@@ -230,11 +225,7 @@ class FirestoreDB {
     return true;
   }
 
-  /**
-   * Guarda el estado del usuario.
-   * Guarda metadatos y categorías en users/{uid} y las transacciones en la subcolección
-   * para evitar el límite duro de 1 MB por documento de Firestore.
-   */
+  // Guarda el estado del usuario.
   async saveAll(data) {
     try {
       if (!await this.ensureUserContext()) return false;
@@ -272,14 +263,10 @@ class FirestoreDB {
     }
   }
 
-  /**
-   * Carga todo el estado del usuario desde Firestore.
-   * Consulta la subcolección de transacciones con fallback y migración transparente
-   * de cuentas legadas almacenadas en el documento raíz.
-   */
-  async loadAll() {
+  // Carga todo el estado del usuario desde Firestore.
+  async loadAll(returnFallback = false) {
     try {
-      if (!await this.ensureUserContext()) return null;
+      if (!await this.ensureUserContext()) return returnFallback ? { transactions: [], categories: [], budgets: {}, settings: {} } : null;
 
       const userRef = this._userDoc();
       const doc = await userRef.get();
@@ -300,7 +287,6 @@ class FirestoreDB {
         // Realizar migración transparente en segundo plano sin bloquear al usuario
         allTransactions = data.transactions;
         this._batchSaveTransactions(allTransactions).then(() => {
-          console.log(`[FirestoreDB] Migradas exitosamente ${allTransactions.length} transacciones a la subcolección.`);
           userRef.set({
             transactionsMigratedToSubcollection: true,
             transactionsCount: allTransactions.length
@@ -334,18 +320,12 @@ class FirestoreDB {
     }
   }
 
-  // Alias para compatibilidad con código existente
-  async loadAllUserData() {
-    const result = await this.loadAll();
-    return result || { transactions: [], categories: [], budgets: {}, settings: {} };
-  }
-
-  async saveSettings(settings) {
+    async saveSettings(settings) {
     try {
       if (!await this.ensureUserContext()) return false;
       await this._userDoc().set({ settings }, { merge: true });
       return true;
-    } catch { return false; }
+    } catch (e) { console.error('[FirestoreDB] Error:', e); return false; }
   }
 
   async loadSettings() {
@@ -353,14 +333,10 @@ class FirestoreDB {
       if (!await this.ensureUserContext()) return {};
       const doc = await this._userDoc().get();
       return doc.exists ? (doc.data().settings || {}) : {};
-    } catch { return {}; }
+    } catch (e) { console.error('[FirestoreDB] Error:', e); return {}; }
   }
 
-  /**
-   * Suscribe a cambios del documento del usuario en Firestore.
-   * @param {function} callback - recibe { categories, transactions, budgets, settings } o null si no existe.
-   * @returns {function} Función para cancelar la suscripción.
-   */
+  // Suscribe a cambios del documento del usuario en Firestore.
   subscribeToUserData(callback) {
     if (!this.db || !this.currentUserId) {
       console.warn('[FirestoreDB] No se puede suscribir: falta db o currentUserId');
@@ -390,11 +366,7 @@ class FirestoreDB {
     return this._unsubscribeSnapshot;
   }
 
-  /**
-   * Suscribe en tiempo real a la subcolección de transacciones (/users/{uid}/transactions).
-   * @param {function} callback - Recibe (transactions, changes)
-   * @returns {function} Función para desuscribirse.
-   */
+  // Suscribe en tiempo real a la subcolección de transacciones (/users/{uid}/transactions).
   subscribeToTransactions(callback) {
     if (!this.db || !this.currentUserId) {
       console.warn('[FirestoreDB] No se puede suscribir a transacciones: falta db o currentUserId');
@@ -419,7 +391,7 @@ class FirestoreDB {
             if (this.currentUserId) {
               localStorage.setItem(`finanzapp:data:v1:${this.currentUserId}:transactions`, JSON.stringify(txs));
             }
-          } catch {}
+          } catch (e) { console.warn('[FirestoreDB] Ignored error:', e); }
 
           if (typeof callback === 'function') {
             callback(txs, snap.docChanges());
@@ -465,7 +437,7 @@ class FirestoreDB {
     if (this.currentUserId) {
       try {
         localStorage.removeItem(`finanzapp:imap_settings:${this.currentUserId}`);
-      } catch {}
+      } catch (e) { console.warn('[FirestoreDB] Ignored error:', e); }
     }
 
     // Usar SyncAPI para guardar de forma cifrada en la colección privada userSecrets/{uid}
