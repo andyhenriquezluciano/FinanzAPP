@@ -1,35 +1,70 @@
-name: CI - Integración Continua
+name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  test-and-build:
+  verify:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     steps:
-      - name: 📥 Clonar repositorio
-        uses: actions/checkout@v4
-
-      - name: ⚙️ Configurar Node.js (v20)
-        uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: 20
-          cache: 'npm'
+          persist-credentials: false
 
-      - name: 📦 Instalar dependencias raíz
-        run: npm ci
-
-      - name: 🔍 Verificar sintaxis JavaScript (node -c)
+      - name: Scan repository for credentials
+        shell: bash
         run: |
-          find src functions tests -name "*.js" -not -path "*/node_modules/*" -exec node -c {} +
+          curl --fail --silent --show-error --location \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            --output "$RUNNER_TEMP/gitleaks.tar.gz"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+          mkdir "$RUNNER_TEMP/repository-scan"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/repository-scan"
+          "$RUNNER_TEMP/gitleaks" dir "$RUNNER_TEMP/repository-scan" --redact=100 --no-banner
 
-      - name: 🧪 Ejecutar pruebas unitarias (Vitest)
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            functions/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix functions
+
+      - name: Audit dependencies
+        run: |
+          npm audit --audit-level=low
+          npm audit --prefix functions --audit-level=low
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          find src functions scripts tests -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.cjs' \) -not -path '*/node_modules/*' -print0 |
+          while IFS= read -r -d '' file; do
+            node --check "$file" || exit 1
+          done
+
+      - name: Check CSS
+        run: npm run css:check
+
+      - name: Run unit tests
         run: npm test
 
-      - name: 🏗️ Validar compilación de producción (scripts/build.js)
-        run: node scripts/build.js
-
+      - name: Build
+        run: |
+          npm run build:vite
+          npm run build

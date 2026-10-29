@@ -1,11 +1,8 @@
-/**
- * FinanzApp - Centralized Toast Notifications Styles
- */
-
-.toast-container {
+/* Propietario compartido: toast.css. Variantes de página delimitadas por su clase raíz. */
+:where(body:is(.categorias-page)) .toast-container {
   position: fixed;
-  top: max(20px, env(safe-area-inset-top));
-  left: max(20px, env(safe-area-inset-left));
+  top: max(20px,env(safe-area-inset-top));
+  left: max(20px,env(safe-area-inset-left));
   bottom: auto;
   right: auto;
   z-index: 10000;
@@ -16,7 +13,7 @@
   max-width: 420px;
 }
 
-.toast {
+:where(body:is(.categorias-page)) .toast {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -30,47 +27,62 @@
   border: 1px solid var(--card-border);
   transform: translateX(-120%) scale(0.8);
   opacity: 0;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);
   pointer-events: auto;
+}
+
+.toast {
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 500;
 }
 
-.toast.show {
+:where(body:is(.categorias-page)) .toast.show {
   transform: translateX(0) scale(1);
   opacity: 1;
 }
 
-.toast.hide {
+:where(body:is(.categorias-page)) .toast.hide {
   transform: translateX(-120%) scale(0.8);
   opacity: 0;
-  transition: all 0.35s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  transition: all 0.35s cubic-bezier(0.55,0.085,0.68,0.53);
 }
 
-@media (min-width: 900px) {
-  .toast-container {
+@media (min-width:900px) {
+  :where(body:is(.categorias-page)) .toast-container {
     top: auto;
     left: auto;
-    bottom: max(20px, env(safe-area-inset-bottom));
-    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px,env(safe-area-inset-bottom));
+    right: max(20px,env(safe-area-inset-right));
   }
-  .toast {
-    transform: translateX(120%) scale(0.8);
-  }
-  .toast.show {
-    transform: translateX(0) scale(1);
-  }
-  .toast.hide {
+}
+
+@media (min-width:900px) {
+  :where(body:is(.categorias-page)) .toast {
     transform: translateX(120%) scale(0.8);
   }
 }
 
-.toast-content {
+@media (min-width:900px) {
+  :where(body:is(.categorias-page)) .toast.show {
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (min-width:900px) {
+  :where(body:is(.categorias-page)) .toast.hide {
+    transform: translateX(120%) scale(0.8);
+  }
+}
+
+:where(body:is(.categorias-page)) .toast-content {
   display: flex;
   align-items: center;
   gap: 10px;
   flex: 1;
+}
+
+.toast-content {
   line-height: 1.4;
 }
 
@@ -82,7 +94,7 @@
   flex-shrink: 0;
 }
 
-.toast-close {
+:where(body:is(.categorias-page)) .toast-close {
   background: none;
   border: none;
   color: inherit;
@@ -93,58 +105,63 @@
   transition: opacity 0.2s ease;
   font-size: 16px;
   line-height: 1;
+}
+
+.toast-close {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.toast-close:hover {
+:where(body:is(.categorias-page)) .toast-close:hover {
   opacity: 1;
 }
 
-.toast-close:focus-visible {
-  outline: 2px solid color-mix(in srgb, currentColor 35%, transparent);
+:where(body:is(.categorias-page)) .toast-close:focus-visible {
+  outline: 2px solid color-mix(in srgb,currentColor 35%,transparent);
   outline-offset: 2px;
 }
 
-.toast-success {
-  background: color-mix(in srgb, var(--success) 15%, var(--card-bg));
+:where(body:is(.categorias-page)) .toast-success {
+  background: color-mix(in srgb,var(--success) 15%,var(--card-bg));
   border-color: var(--success);
   color: var(--success);
   border-width: 1.5px;
 }
 
-.toast-error {
-  background: color-mix(in srgb, var(--danger) 15%, var(--card-bg));
+:where(body:is(.categorias-page)) .toast-error {
+  background: color-mix(in srgb,var(--danger) 15%,var(--card-bg));
   border-color: var(--danger);
   color: var(--danger);
   border-width: 1.5px;
 }
 
-.toast-warning {
-  background: color-mix(in srgb, var(--gold) 15%, var(--card-bg));
+:where(body:is(.categorias-page)) .toast-warning {
+  background: color-mix(in srgb,var(--gold) 15%,var(--card-bg));
   border-color: var(--gold);
   color: var(--gold);
   border-width: 1.5px;
 }
 
-.toast-info {
-  background: color-mix(in srgb, var(--primary) 15%, var(--card-bg));
+:where(body:is(.categorias-page,.estadistica-page)) .toast-info {
+  background: color-mix(in srgb,var(--primary) 15%,var(--card-bg));
   border-color: var(--primary);
   color: var(--primary);
   border-width: 1.5px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .toast {
+@media (prefers-reduced-motion:reduce) {
+  :where(body:is(.categorias-page,.config-page)) .toast {
     transition: none;
     transform: none;
   }
-  .toast.show,
-  .toast.hide {
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :where(body:is(.categorias-page,.config-page)) .toast.show,
+  :where(body:is(.categorias-page,.config-page)) .toast.hide {
     transition: none;
     transform: none;
     opacity: 1;
   }
 }
-

@@ -22,23 +22,11 @@ class FirebaseAuth {
           return false;
         }
 
-      // Always use the custom domain as authDomain so the Firebase auth iframe
-      // is loaded from the same origin as the app (byfinanzapp.com), preventing
-      // cross-origin iframe blocking by modern browsers (Safari ITP, Chrome ETP).
-      const defaultAuthDomain = "byfinanzapp.com";
-
-      const defaultConfig = {
-        apiKey: "YOUR_FIREBASE_API_KEY",
-        authDomain: defaultAuthDomain,
-        projectId: "finanzapp-fb",
-        storageBucket: "finanzapp-fb.firebasestorage.app",
-        messagingSenderId: "YOUR_PROJECT_NUMBER",
-        appId: "YOUR_APP_ID",
-        measurementId: "YOUR_MEASUREMENT_ID"
-      };
       const rawConfig = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) 
         ? window.FIREBASE_CONFIG 
-        : (window.APP_CONFIG?.firebaseConfig || defaultConfig);
+        : window.APP_CONFIG?.firebaseConfig;
+
+      if (!rawConfig?.apiKey || !rawConfig.projectId) return false;
       
       const config = { ...rawConfig };
 
@@ -48,7 +36,7 @@ class FirebaseAuth {
       if (typeof window !== 'undefined' && window.location && window.location.hostname) {
         const currentHost = window.location.hostname;
         if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
-          config.authDomain = `${config.projectId || 'finanzapp-fb'}.firebaseapp.com`;
+          config.authDomain = `${config.projectId}.firebaseapp.com`;
         } else if (currentHost.includes('web.app') || currentHost.includes('firebaseapp.com') || currentHost === config.authDomain) {
           config.authDomain = currentHost;
         }

@@ -31,39 +31,32 @@
   <link rel="icon" href="/Icons/favicon.ico?v=2026090206" sizes="any" />
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png?v=2026090206" />
 
-  
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
-  <link rel="stylesheet" href="/lib/fonts.css">
+  <link rel="stylesheet" href="/lib/fonts.css?v=20261029009">
   <script src="/lib/lucide/lucide.min.js"></script>
   <script src="/lib/LucideIcons.js"></script>
 
-  <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
-  <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
-  <link rel="stylesheet" href="/pages/Presupuestos/Presupuestos.css?v=20260824003">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/base.css?v=20260824003">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/tablas.css?v=20260824003">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/tema-claro.css?v=20260824003" id="light-css">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/tema-oscuro.css?v=20260824003" id="dark-css">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/mobile-nav.css?v=20260824003">
-
-
+  <link rel="stylesheet" href="/pages/Presupuestos/Presupuestos.css?v=20261029009">
 
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
   <script src="/__config.js"></script>
+  <script src="/lib/Logger.js"></script>
+  <script src="/lib/Constants.js"></script>
+  <script src="/lib/AuthService.js"></script>
   <script src="/lib/FirestoreDB.js?v=20260820002"></script>
-  
-  <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
-  <script src="/lib/Debug.js?v=20260820002"></script>
   <script src="/lib/Events.js?v=20260820002"></script>
+  <script type="module" src="/lib/ReactiveStore.js"></script>
   <script src="/lib/UI.js?v=20260505"></script>
+  <script src="/lib/Toast.js"></script>
+  <script src="/lib/ModalManager.js"></script>
+  <script src="/lib/DatePicker.js"></script>
+  <script src="/lib/ProfileSync.js"></script>
   <script src="/lib/Helpers.js?v=202605170002"></script>
   <script src="/lib/DataStore.js?v=20260820002"></script>
   <script src="/lib/BasePage.js?v=20260601"></script>
-  <script src="/lib/ProfileSync.js"></script>
 
   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
@@ -341,8 +334,6 @@
       <button id="alertConfirm" class="btn btn-primary">Aceptar</button>
     </div>
   </div>
-
-
 
   <!-- El modal del calendario se mueve al final del body para asegurar visibilidad -->
 

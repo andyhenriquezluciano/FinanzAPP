@@ -4,7 +4,6 @@
  * Requiere Google Identity Services (GIS) cargado en la página antes de usar.
  */
 
-const GMAIL_CLIENT_ID = 'YOUR_CLIENT_ID.apps.googleusercontent.com';
 const GMAIL_BACKEND_URL = window.APP_CONFIG?.gmailBackendUrl || '';
 const GMAIL_POLLING_INTERVAL_MS = 10000;
 const GMAIL_LAST_CHECKED_KEY   = 'finanzapp:gmail:lastChecked';
@@ -15,7 +14,7 @@ const GMAIL_HISTORY_ID_KEY     = 'finanzapp:gmail:historyId';
 
 class GmailAPI {
   constructor() {
-    this._clientId       = window.APP_CONFIG?.gmailClientId || window.APP_CONFIG?.googleClientId || GMAIL_CLIENT_ID;
+    this._clientId       = window.APP_CONFIG?.gmailClientId || window.APP_CONFIG?.googleClientId || '';
     this._accessToken    = null;
     this._pollingTimer   = null;
     this._lastChecked    = this._loadLastChecked();

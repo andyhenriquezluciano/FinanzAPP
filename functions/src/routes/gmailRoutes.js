@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
 const axios = require('axios');
-const { encryptSecret, decryptKms } = require('../cryptoHelper');
+const { encryptSecret, decryptSecret } = require('../cryptoHelper');
 const {
   CLIENT_ID,
   CLIENT_SECRET,
@@ -182,7 +182,7 @@ module.exports = function createGmailRoutes(verifyUserRequest) {
       let refresh_token = null;
       try {
         const encrypted = data?.gmail?.encrypted_refresh_token;
-        refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+        refresh_token = encrypted ? await decryptSecret(encrypted) : data?.gmail?.refresh_token;
       } catch (kmsErr) {
         console.warn('[refreshAccessToken] KMS decrypt error:', kmsErr?.message);
         refresh_token = data?.gmail?.refresh_token || null;
@@ -242,7 +242,7 @@ module.exports = function createGmailRoutes(verifyUserRequest) {
       const doc = await admin.firestore().collection('users').doc(uid).get();
       const data = doc.exists ? doc.data() : null;
       const encrypted = data?.gmail?.encrypted_refresh_token;
-      const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+      const refresh_token = encrypted ? await decryptSecret(encrypted) : data?.gmail?.refresh_token;
       if (!refresh_token) return res.status(200).json({ error: 'no refresh token', code: 'not_found' });
 
       const tokenData = await refreshAccessTokenWithRefreshToken(refresh_token);
@@ -296,7 +296,7 @@ module.exports = function createGmailRoutes(verifyUserRequest) {
       const data = doc.exists ? doc.data() : null;
       const emailAddress = data?.gmail?.watchedEmail || null;
       const encrypted = data?.gmail?.encrypted_refresh_token;
-      const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+      const refresh_token = encrypted ? await decryptSecret(encrypted) : data?.gmail?.refresh_token;
 
       if (refresh_token) {
         const tokenData = await refreshAccessTokenWithRefreshToken(refresh_token);

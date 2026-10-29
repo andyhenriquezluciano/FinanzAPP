@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "exportedAt": "2026-10-29T12:00:00.000Z",
+  "description": "Datos ficticios para pruebas visuales.",
+  "settings": {
+    "theme": "dark",
+    "categoryViewMode": "detailed",
+    "currency": "USD",
+    "numberFormat": "en-US",
+    "dateFormat": "DD/MM/YYYY",
+    "confirmDelete": true,
+    "autoRenewBudgets": false,
+    "txPerPage": 10,
+    "showCents": true,
+    "censorAmounts": false
+  },
+  "state": {
+    "categories": [
+      {
+        "id": 1,
+        "name": "Ingresos de ejemplo",
+        "fixedType": "income",
+        "icon": "wallet",
+        "color": "#eb6f92",
+        "isDefault": true,
+        "isPinned": true,
+        "transactions": []
+      },
+      {
+        "id": 2,
+        "name": "Gastos fijos de ejemplo",
+        "fixedType": "expense",
+        "icon": "wallet",
+        "color": "#eb6f92",
+        "isDefault": true,
+        "isPinned": true,
+        "transactions": []
+      },
+      {
+        "id": 3,
+        "name": "Alimentación de ejemplo",
+        "fixedType": null,
+        "icon": "wallet",
+        "color": "#eb6f92",
+        "isDefault": false,
+        "isPinned": false,
+        "transactions": []
+      },
+      {
+        "id": 4,
+        "name": "Transporte de ejemplo",
+        "fixedType": null,
+        "icon": "wallet",
+        "color": "#eb6f92",
+        "isDefault": false,
+        "isPinned": false,
+        "transactions": []
+      }
+    ],
+    "transactions": [
+      {
+        "id": "demo-1-0",
+        "categoryId": 1,
+        "categoryName": "Ingresos de ejemplo",
+        "amount": 1000,
+        "type": "income",
+        "description": "Movimiento ficticio 1",
+        "date": "2026-10-01"
+      },
+      {
+        "id": "demo-1-1",
+        "categoryId": 1,
+        "categoryName": "Ingresos de ejemplo",
+        "amount": 1000,
+        "type": "income",
+        "description": "Movimiento ficticio 2",
+        "date": "2026-10-02"
+      },
+      {
+        "id": "demo-1-2",
+        "categoryId": 1,
+        "categoryName": "Ingresos de ejemplo",
+        "amount": 1000,
+        "type": "income",
+        "description": "Movimiento ficticio 3",
+        "date": "2026-10-03"
+      },
+      {
+        "id": "demo-1-3",
+        "categoryId": 1,
+        "categoryName": "Ingresos de ejemplo",
+        "amount": 1000,
+        "type": "income",
+        "description": "Movimiento ficticio 4",
+        "date": "2026-10-04"
+      },
+      {
+        "id": "demo-2-0",
+        "categoryId": 2,
+        "categoryName": "Gastos fijos de ejemplo",
+        "amount": 20,
+        "type": "expense",
+        "description": "Movimiento ficticio 1",
+        "date": "2026-10-01"
+      },
+      {
+        "id": "demo-2-1",
+        "categoryId": 2,
+        "categoryName": "Gastos fijos de ejemplo",
+        "amount": 25,
+        "type": "expense",
+        "description": "Movimiento ficticio 2",
+        "date": "2026-10-02"
+      },
+      {
+        "id": "demo-2-2",
+        "categoryId": 2,
+        "categoryName": "Gastos fijos de ejemplo",
+        "amount": 30,
+        "type": "expense",
+        "description": "Movimiento ficticio 3",
+        "date": "2026-10-03"
+      },
+      {
+        "id": "demo-2-3",
+        "categoryId": 2,
+        "categoryName": "Gastos fijos de ejemplo",
+        "amount": 35,
+        "type": "expense",
+        "description": "Movimiento ficticio 4",
+        "date": "2026-10-04"
+      },
+      {
+        "id": "demo-3-0",
+        "categoryId": 3,
+        "categoryName": "Alimentación de ejemplo",
+        "amount": 20,
+        "type": "expense",
+        "description": "Movimiento ficticio 1",
+        "date": "2026-10-01"
+      },
+      {
+        "id": "demo-3-1",
+        "categoryId": 3,
+        "categoryName": "Alimentación de ejemplo",
+        "amount": 25,
+        "type": "expense",
+        "description": "Movimiento ficticio 2",
+        "date": "2026-10-02"
+      },
+      {
+        "id": "demo-3-2",
+        "categoryId": 3,
+        "categoryName": "Alimentación de ejemplo",
+        "amount": 30,
+        "type": "expense",
+        "description": "Movimiento ficticio 3",
+        "date": "2026-10-03"
+      },
+      {
+        "id": "demo-3-3",
+        "categoryId": 3,
+        "categoryName": "Alimentación de ejemplo",
+        "amount": 35,
+        "type": "expense",
+        "description": "Movimiento ficticio 4",
+        "date": "2026-10-04"
+      },
+      {
+        "id": "demo-4-0",
+        "categoryId": 4,
+        "categoryName": "Transporte de ejemplo",
+        "amount": 20,
+        "type": "expense",
+        "description": "Movimiento ficticio 1",
+        "date": "2026-10-01"
+      },
+      {
+        "id": "demo-4-1",
+        "categoryId": 4,
+        "categoryName": "Transporte de ejemplo",
+        "amount": 25,
+        "type": "expense",
+        "description": "Movimiento ficticio 2",
+        "date": "2026-10-02"
+      },
+      {
+        "id": "demo-4-2",
+        "categoryId": 4,
+        "categoryName": "Transporte de ejemplo",
+        "amount": 30,
+        "type": "expense",
+        "description": "Movimiento ficticio 3",
+        "date": "2026-10-03"
+      },
+      {
+        "id": "demo-4-3",
+        "categoryId": 4,
+        "categoryName": "Transporte de ejemplo",
+        "amount": 35,
+        "type": "expense",
+        "description": "Movimiento ficticio 4",
+        "date": "2026-10-04"
+      }
+    ],
+    "budgets": [
+      {
+        "id": "demo-budget-3",
+        "name": "Alimentación de ejemplo",
+        "categoryId": 3,
+        "categoryName": "Alimentación de ejemplo",
+        "amount": 200,
+        "period": "custom",
+        "startDate": "2026-10-01",
+        "endDate": "2026-10-29"
+      },
+      {
+        "id": "demo-budget-4",
+        "name": "Transporte de ejemplo",
+        "categoryId": 4,
+        "categoryName": "Transporte de ejemplo",
+        "amount": 200,
+        "period": "custom",
+        "startDate": "2026-10-01",
+        "endDate": "2026-10-29"
+      }
+    ]
+  }
+}

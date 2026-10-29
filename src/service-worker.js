@@ -1,13 +1,13 @@
 /**
  * FinanzApp Modern Service Worker
  * --------------------------------
- * Estrategia de caché balanceada y resiliente:
- *  - Network-First para navegación HTML (garantiza siempre la última versión online, offline fallback).
- *  - Stale-While-Revalidate para recursos estáticos locales (CSS, JS, iconos, fuentes).
+ * Estrategia de cachÃ© balanceada y resiliente:
+ *  - Network-First para navegaciÃ³n HTML (garantiza siempre la Ãºltima versiÃ³n online, offline fallback).
+ *  - Stale-While-Revalidate para recursos estÃ¡ticos locales (CSS, JS, iconos, fuentes).
  *  - Network-Only bypass para Firebase Auth, Firestore y APIs bancarias.
  */
 
-const CACHE_NAME = 'finanzapp-cache-v2.4.1';
+const CACHE_NAME = 'finanzapp-cache-v2.4.6-css';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -21,7 +21,10 @@ const PRECACHE_ASSETS = [
   '/assets/logo-f-claro.png',
   '/assets/logo-oscuro-square.png',
   '/assets/logo-claro-square.png',
-  '/lib/UI.css',
+  '/lib/components/overlays.css',
+  '/lib/core/core.css',
+  '/lib/public.css',
+  '/lib/legal.css',
   '/lib/shared-mobile-nav.css',
   '/lib/toast.css',
   '/pages/Categorias/Categorias.html',
@@ -51,7 +54,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((name) => {
           if (name !== CACHE_NAME) {
-            console.log('[SW] Eliminando caché obsoleta:', name);
+            console.log('[SW] Eliminando cachÃ© obsoleta:', name);
             return caches.delete(name);
           }
         })
@@ -84,7 +87,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Peticiones de navegación (HTML): Network-First con fallback a caché
+  // 3. Peticiones de navegaciÃ³n (HTML): Network-First con fallback a cachÃ©
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       fetch(request)
@@ -105,7 +108,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 4. Recursos estáticos locales: Stale-While-Revalidate
+  // 4. Recursos estÃ¡ticos locales: Stale-While-Revalidate
   const isStaticAsset =
     url.origin === self.location.origin &&
     (/\.(css|js|png|jpg|jpeg|svg|ico|woff2?|webp)$/i.test(url.pathname) ||

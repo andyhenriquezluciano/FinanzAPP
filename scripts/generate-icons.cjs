@@ -145,8 +145,13 @@ function makeICO(pngList) {
 // -------------------------------------------------------------
 // Modo Claro usa #B4637A (imagen malva/rosa suave)
 // Modo Oscuro usa #EB6F92 (imagen rosa vibrante)
-const CLARO_SRC = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788369196507.png';
-const OSCURO_SRC = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788369196560.png';
+const [claroSource, oscuroSource] = process.argv.slice(2);
+if (!claroSource || !oscuroSource) {
+  console.error('Uso: node scripts/generate-icons.cjs logo-claro-1024.png logo-oscuro-1024.png');
+  process.exit(1);
+}
+const CLARO_SRC = path.resolve(claroSource);
+const OSCURO_SRC = path.resolve(oscuroSource);
 
 const claroData = unfilterPNG(fs.readFileSync(CLARO_SRC));
 const oscuroData = unfilterPNG(fs.readFileSync(OSCURO_SRC));

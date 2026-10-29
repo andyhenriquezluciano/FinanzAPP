@@ -1,0 +1,59 @@
+/* Acabado común de tarjetas de categorías y presupuestos. */
+.category-card,
+.budget-card {
+  background: var(--category-bg, #232136);
+  border-radius: 22px;
+  padding: 18px;
+  border: none;
+  cursor: default;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1),
+    box-shadow 0.3s cubic-bezier(0.4,0,0.2,1),
+    background-color 0.3s cubic-bezier(0.4,0,0.2,1);
+  overflow: visible;
+  z-index: 10;
+}
+
+[data-theme="light"] .category-card,
+[data-theme="light"] .budget-card {
+  background: var(--card-bg, #FAF4ED);
+}
+
+[data-theme="light"] .category-card:not(:hover),
+[data-theme="light"] .budget-card:not(:hover) {
+  border: 2px solid transparent;
+}
+
+.category-card:hover,
+.budget-card:hover {
+  transform: translateY(-2px);
+  z-index: 20;
+  border: 2px solid var(--primary);
+  box-shadow: 0 20px 40px -8px rgba(0,0,0,0.2),0 0 18px rgba(235,111,146,0.35),0 2px 12px rgba(235,111,146,0.15);
+}
+
+[data-theme="light"] .category-card:hover,
+[data-theme="light"] .budget-card:hover {
+  box-shadow: 0 15px 30px -5px rgba(180,99,122,0.3),0 0 18px rgba(180,99,122,0.4),0 2px 12px rgba(180,99,122,0.15);
+}
+
+@media (hover:none) and (pointer:coarse),(max-width:768px) {
+  body.categorias-page .category-card:hover,
+  body.categorias-page .category-card.pinned:hover,
+  body.budgets-page .budget-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media (max-width:980px) {
+  @media (hover:none) and (pointer:coarse),(max-width:768px) {
+    body.categorias-page .category-card:hover,
+    body.categorias-page .category-card.pinned:hover,
+    body.budgets-page .budget-card:hover {
+      transform: none !important;
+      box-shadow: none !important;
+      border-color: transparent !important;
+    }
+  }
+}

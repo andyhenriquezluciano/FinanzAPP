@@ -1,168 +1,173 @@
-/**
- * FinanzApp - Centralized Design Tokens (Rose Pine Palette)
- * Single Source of Truth for Colors, Shadows, Spacing, and Elevation
- */
-
+/* Propietario compartido: tokens.css. Variantes de página delimitadas por su clase raíz. */
 :root {
-  /* Color Palette - Dark Theme (Default) */
-  --primary: #eb6f92;
-  --primary-dark: #ebbcba;
-  --primary-light: #f6c177;
-  --secondary: #31748f;
-  --secondary-light: #9ccfd8;
-  --teal: #9ccfd8;
-  --gold: #f6c177;
-  --warning: #f6c177;
-  --warning-light: #ebbcba;
-  --accent: #c4a7e7;
-  --purple: #c4a7e7;
-  --accent-light: #ebbcba;
-  --dark: #191724;
-  --darker: #191724;
-  --light: #e0def4;
-  --gray: #908caa;
-  --gray-light: #797593;
-  --gray-dark: #6e6a86;
-  --success: #2D957B;
-  --success-light: #9ccfd8;
-  --danger: #eb6f92;
-  --danger-light: #ebbcba;
+  --gray-light:  #797593;
+  --gray-dark:  #6e6a86;
+  --btn-shadow-hover:  0 8px 24px rgba(235, 111, 146, 0.45);
+  --scrollbar-accent-hover:  #f08ca8;
+  --shadow-xl:  0 20px 40px rgba(0, 0, 0, 0.4);
+  --gmail-dot-connected:  #2d957b;
+  --gmail-dot-disconnected:  #eb6f92;
+}
 
-  /* Surfaces & Elevation */
-  --card-bg: #1f1d2e;
-  --category-bg: #232136;
-  --card-border: transparent;
-  --card-border-solid: rgba(255, 255, 255, 0.05);
-  --card-border-hover: rgba(255, 255, 255, 0.1);
-  --card-hover: #26233a;
-  --sidebar-bg: #1F1D2E;
-  --sidebar-border: none;
-  --border: none;
-  --profile-bg: rgba(255, 255, 255, 0.05);
-  --profile-border: rgba(255, 255, 255, 0.1);
-  --summary-card-bg: rgba(37, 37, 57, 0.8);
-  --summary-card-bg-hover: rgba(37, 37, 57, 0.9);
-  --category-shadow: none;
-  --menu-border: none;
-  --menu-shadow: none;
-  --menu-item-hover: #26233a;
-  --table-header-bg: rgba(255, 255, 255, 0.05);
-  --card-shadow-hover: 0 0 20px rgba(235, 111, 146, 0.3);
-  --btn-primary-shadow: none;
-  --btn-shadow-hover: 0 8px 24px rgba(235, 111, 146, 0.45);
-  --btn-outline-shadow: none;
-  --scrollbar-accent: #eb6f92;
-  --scrollbar-accent-hover: #f08ca8;
+:root:where(:root:has(> :is(body:is(.categorias-page,.estadistica-page,.config-page)))) {
+  --shadow-sm:  none;
+  --shadow-md:  none;
+  --shadow-lg:  none;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --transition-fast:  0.18s ease;
+  --transition-normal:  0.25s ease;
+  --transition-slow:  0.4s ease;
+}
 
-  /* Elevation & Borders - Dark Theme (Sin sombras estáticas, sólo presentes en hover) */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.4);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --transition-fast: 0.18s ease;
-  --transition-normal: 0.25s ease;
-  --transition-slow: 0.4s ease;
+:root:where(:root:has(> :is(body:is(.categorias-page,.budgets-page,.estadistica-page)))) {
+  --config-page-bg:  #191724;
+  --config-card-bg:  #1f1d2e;
+  --config-section-bg:  #1f1d2e;
+  --config-card-border:  rgba(255, 255, 255, 0.05);
+  --config-text:  #e0def4;
+  --config-muted:  #908caa;
+  --config-input-bg:  #191724;
+  --config-input-border:  rgba(255, 255, 255, 0.1);
+  --config-pill-bg:  rgba(235, 111, 146, 0.15);
+  --config-pill-text:  #eb6f92;
+  --config-focus:  rgba(235, 111, 146, 0.3);
+  --config-success:  #2d957b;
+  --config-danger:  #eb6f92;
+  --mobile-nav-bg:  rgba(25, 23, 36, 0.95);
+  --mobile-nav-border:  rgba(255, 255, 255, 0.08);
+  --mobile-nav-text:  #908caa;
+  --mobile-nav-active-bg:  rgba(235, 111, 146, 0.18);
+  --mobile-nav-active-text:  #eb6f92;
+}
 
-  /* Specific Feature & Module Tokens */
-  --gmail-dot-connected: #2d957b;
-  --gmail-dot-disconnected: #eb6f92;
-  --config-page-bg: #191724;
-  --config-card-bg: #1f1d2e;
-  --config-section-bg: #1f1d2e;
-  --config-card-border: rgba(255, 255, 255, 0.05);
-  --config-text: #e0def4;
-  --config-muted: #908caa;
-  --config-input-bg: #191724;
-  --config-input-border: rgba(255, 255, 255, 0.1);
-  --config-pill-bg: rgba(235, 111, 146, 0.15);
-  --config-pill-text: #eb6f92;
-  --config-focus: rgba(235, 111, 146, 0.3);
-  --config-success: #2d957b;
-  --config-danger: #eb6f92;
-  --mobile-nav-bg: rgba(25, 23, 36, 0.95);
-  --mobile-nav-border: rgba(255, 255, 255, 0.08);
-  --mobile-nav-text: #908caa;
-  --mobile-nav-active-bg: rgba(235, 111, 146, 0.18);
-  --mobile-nav-active-text: #eb6f92;
+:root:where(:root:has(> :is(body:is(.budgets-page,.estadistica-page,.config-page)))) {
+  --primary:  #eb6f92;
+  --primary-dark:  #ebbcba;
+  --primary-light:  #f6c177;
+  --secondary:  #31748f;
+  --secondary-light:  #9ccfd8;
+  --teal:  #9ccfd8;
+  --gold:  #f6c177;
+  --warning:  #f6c177;
+  --warning-light:  #ebbcba;
+  --accent:  #c4a7e7;
+  --purple:  #c4a7e7;
+  --accent-light:  #ebbcba;
+  --dark:  #191724;
+  --darker:  #191724;
+  --light:  #e0def4;
+  --gray:  #908caa;
+  --success:  #2D957B;
+  --success-light:  #9ccfd8;
+  --danger:  #eb6f92;
+  --danger-light:  #ebbcba;
+  --card-bg:  #1f1d2e;
+  --category-bg:  #232136;
+  --card-border:  transparent;
+  --card-border-solid:  rgba(255, 255, 255, 0.05);
+  --card-border-hover:  rgba(255, 255, 255, 0.1);
+  --card-hover:  #26233a;
+  --sidebar-bg:  #1F1D2E;
+  --sidebar-border:  none;
+  --border:  none;
+  --profile-bg:  rgba(255, 255, 255, 0.05);
+  --profile-border:  rgba(255, 255, 255, 0.1);
+  --summary-card-bg:  rgba(37, 37, 57, 0.8);
+  --summary-card-bg-hover:  rgba(37, 37, 57, 0.9);
+  --category-shadow:  none;
+  --menu-border:  none;
+  --menu-shadow:  none;
+  --menu-item-hover:  #26233a;
+  --table-header-bg:  rgba(255, 255, 255, 0.05);
+  --card-shadow-hover:  0 0 20px rgba(235, 111, 146, 0.3);
+  --btn-primary-shadow:  none;
+  --btn-outline-shadow:  none;
+  --scrollbar-accent:  #eb6f92;
 }
 
 [data-theme="light"] {
-  /* Color Palette - Light Theme */
-  --primary: #b4637a;
-  --primary-dark: #d7827e;
-  --primary-light: #ea9d34;
-  --secondary: #286983;
-  --secondary-light: #56949f;
-  --teal: #56949f;
-  --gold: #ea9d34;
-  --warning: #ea9d34;
-  --warning-light: #d7827e;
-  --accent: #9c6bd7;
-  --purple: #9c6bd7;
-  --accent-light: #bfa6e6;
-  --dark: #faf4ed;
-  --darker: #fffaf3;
-  --light: #575279;
-  --gray: #9893a5;
-  --gray-light: #797593;
-  --gray-dark: #6e6a86;
-  --success: #2D957B;
-  --success-light: #46a987;
-  --danger: #b4637a;
-  --danger-light: #d7827e;
-
-  /* Surfaces & Elevation */
-  --card-bg: #fffaf3;
-  --category-bg: #faf4ed;
-  --card-border: #f2e9e1;
-  --card-border-solid: #f2e9e1;
-  --card-border-hover: #e6ded6;
-  --card-hover: #f4ede8;
-  --sidebar-bg: #faf4ed;
-  --sidebar-border: #f2e9e1;
-  --border: #f2e9e1;
-  --profile-bg: rgba(87, 82, 121, 0.05);
-  --profile-border: rgba(87, 82, 121, 0.1);
-  --summary-card-bg: #fffaf3;
-  --summary-card-bg-hover: #f4ede8;
-  --category-shadow: 0 4px 16px rgba(87, 82, 121, 0.08);
-  --menu-border: #f2e9e1;
-  --menu-shadow: 0 4px 20px rgba(87, 82, 121, 0.12);
-  --menu-item-hover: #f4ede8;
-  --table-header-bg: rgba(87, 82, 121, 0.05);
-  --card-shadow-hover: 0 0 20px rgba(180, 99, 122, 0.50);
-  --btn-shadow-hover: 0 0 20px rgba(180, 99, 122, 0.50);
-  --scrollbar-accent: #b4637a;
-  --scrollbar-accent-hover: #964f62;
-
-  /* Elevation */
-  --shadow-sm: 0 2px 8px rgba(87, 82, 121, 0.08);
-  --shadow-md: 0 4px 16px rgba(87, 82, 121, 0.12);
-  --shadow-lg: 0 8px 30px rgba(87, 82, 121, 0.16);
-
-  /* Specific Feature & Module Tokens */
-  --gmail-dot-connected: #2d957b;
-  --gmail-dot-disconnected: #b4637a;
-  --config-page-bg: #faf4ed;
-  --config-card-bg: #fffaf3;
-  --config-section-bg: #fffaf3;
-  --config-card-border: #f2e9e1;
-  --config-text: #575279;
-  --config-muted: #797593;
-  --config-input-bg: #f5efea;
-  --config-input-border: #f2e9e1;
-  --config-pill-bg: rgba(180, 99, 122, 0.14);
-  --config-pill-text: #b4637a;
-  --config-focus: rgba(180, 99, 122, 0.3);
-  --config-success: #2d957b;
-  --config-danger: #b4637a;
-  --mobile-nav-bg: rgba(255, 250, 243, 0.96);
-  --mobile-nav-border: rgba(180, 99, 122, 0.28);
-  --mobile-nav-text: #9893a5;
-  --mobile-nav-active-bg: rgba(180, 99, 122, 0.16);
-  --mobile-nav-active-text: #b4637a;
+  --primary-light:  #ea9d34;
+  --gold:  #ea9d34;
+  --card-border-solid:  #f2e9e1;
+  --card-border-hover:  #e6ded6;
+  --sidebar-border:  #f2e9e1;
+  --border:  #f2e9e1;
+  --profile-bg:  rgba(87, 82, 121, 0.05);
+  --profile-border:  rgba(87, 82, 121, 0.1);
+  --summary-card-bg-hover:  #f4ede8;
+  --category-shadow:  0 4px 16px rgba(87, 82, 121, 0.08);
+  --menu-border:  #f2e9e1;
+  --menu-shadow:  0 4px 20px rgba(87, 82, 121, 0.12);
+  --menu-item-hover:  #f4ede8;
+  --table-header-bg:  rgba(87, 82, 121, 0.05);
+  --shadow-sm:  0 2px 8px rgba(87, 82, 121, 0.08);
+  --shadow-md:  0 4px 16px rgba(87, 82, 121, 0.12);
+  --shadow-lg:  0 8px 30px rgba(87, 82, 121, 0.16);
 }
 
+:where(:root:has(> :is(body:is(.categorias-page,.budgets-page,.estadistica-page))))[data-theme="light"] {
+  --sidebar-bg:  #faf4ed;
+  --gmail-dot-connected:  #2d957b;
+  --gmail-dot-disconnected:  #b4637a;
+  --config-page-bg:  #faf4ed;
+  --config-card-bg:  #fffaf3;
+  --config-section-bg:  #fffaf3;
+  --config-card-border:  #f2e9e1;
+  --config-text:  #575279;
+  --config-muted:  #797593;
+  --config-input-bg:  #f5efea;
+  --config-input-border:  #f2e9e1;
+  --config-pill-bg:  rgba(180, 99, 122, 0.14);
+  --config-pill-text:  #b4637a;
+  --config-focus:  rgba(180, 99, 122, 0.3);
+  --config-success:  #2d957b;
+  --config-danger:  #b4637a;
+  --mobile-nav-bg:  rgba(255, 250, 243, 0.96);
+  --mobile-nav-border:  rgba(180, 99, 122, 0.28);
+  --mobile-nav-text:  #9893a5;
+  --mobile-nav-active-bg:  rgba(180, 99, 122, 0.16);
+  --mobile-nav-active-text:  #b4637a;
+}
+
+:where(:root:has(> :is(body:is(.categorias-page,.estadistica-page,.config-page))))[data-theme="light"] {
+  --scrollbar-accent-hover:  #964f62;
+}
+
+:where(:root:has(> :is(body:is(.budgets-page,.estadistica-page,.config-page))))[data-theme="light"] {
+  --teal:  #56949f;
+  --purple:  #9c6bd7;
+  --category-bg:  #faf4ed;
+  --summary-card-bg:  #fffaf3;
+}
+
+:where(:root:has(> :is(body:is(.budgets-page,.estadistica-page))))[data-theme="light"] {
+  --btn-shadow-hover:  0 0 20px rgba(180, 99, 122, 0.50);
+}
+
+:where(:root:has(> :is(body:is(.estadistica-page))))[data-theme="light"] {
+  --primary:  #b4637a;
+  --primary-dark:  #d7827e;
+  --secondary:  #286983;
+  --warning:  #ea9d34;
+  --accent:  #9c6bd7;
+  --dark:  #faf4ed;
+  --darker:  #fffaf3;
+  --light:  #575279;
+  --gray:  #9893a5;
+  --gray-light:  #797593;
+  --success:  #2D957B;
+  --success-light:  #46a987;
+  --card-border:  #f2e9e1;
+  --card-hover:  #f4ede8;
+  --card-shadow-hover:  0 0 20px rgba(180, 99, 122, 0.50);
+  --scrollbar-accent:  #b4637a;
+}
+
+:where(:root:has(> :is(body:is(.estadistica-page,.config-page))))[data-theme="light"] {
+  --secondary-light:  #56949f;
+  --warning-light:  #d7827e;
+  --accent-light:  #bfa6e6;
+  --gray-dark:  #6e6a86;
+}

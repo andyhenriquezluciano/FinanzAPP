@@ -14,3 +14,16 @@
 .gitignore
 
 node_modules
+
+.git
+.env
+.env.*
+!.env.example
+.runtimeconfig.json
+*.pem
+*.key
+*.p12
+*-service-account*.json
+serviceAccount*.json
+credentials.json
+client_secret*.json

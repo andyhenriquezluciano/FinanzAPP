@@ -38,8 +38,8 @@ service cloud.firestore {
       }
       
       // Otras subcolecciones o documentos anidados del usuario
-      match /{allChildren=**} {
-        allow read, write: if isOwner(userId);
+      match /{collection}/{documents=**} {
+        allow read, write: if isOwner(userId) && collection != 'transactions';
       }
     }
     

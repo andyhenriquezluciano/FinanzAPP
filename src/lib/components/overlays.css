@@ -1,5 +1,4 @@
-
-
+/* Alertas, calendario, tooltips e iconos compartidos; variantes delimitadas por página. */
 html body .custom-alert.hidden {
   display: none;
 }
@@ -8,7 +7,7 @@ html body .custom-alert.hidden {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%,-50%);
   background: #1f1d2e;
   border-radius: 22px;
   padding: 24px 28px;
@@ -23,7 +22,7 @@ html body .custom-alert.hidden {
   box-sizing: border-box;
 }
 
-@media (max-width: 480px) {
+@media (max-width:480px) {
   .custom-alert {
     width: 88%;
     max-width: 310px;
@@ -32,23 +31,31 @@ html body .custom-alert.hidden {
     border-width: 2px;
     max-height: 85vh;
   }
+}
 
+@media (max-width:480px) {
   .custom-alert .custom-alert-title {
     font-size: 14px;
     margin-bottom: 4px;
   }
+}
 
+@media (max-width:480px) {
   .custom-alert .custom-alert-message {
     font-size: 12px;
     line-height: 1.35;
     margin: 4px 0 8px;
   }
+}
 
+@media (max-width:480px) {
   .custom-alert .custom-alert-buttons {
     gap: 7px;
     margin-top: 8px;
   }
+}
 
+@media (max-width:480px) {
   .custom-alert .btn,
   .custom-alert-buttons .btn {
     min-height: 32px;
@@ -59,7 +66,6 @@ html body .custom-alert.hidden {
   }
 }
 
-/* Evitar outline/foco blanco alrededor del cuadro de alerta */
 html body .custom-alert:focus,
 html body .custom-alert:focus-visible {
   outline: none;
@@ -78,7 +84,7 @@ html body .custom-alert:focus-visible {
 }
 
 .custom-alert-title::before {
-  content: '';
+  content: "";
   display: none;
   width: 22px;
   height: 22px;
@@ -91,17 +97,17 @@ html body .custom-alert:focus-visible {
 
 .custom-alert.success .custom-alert-title::before {
   background-color: var(--success);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 12.5l3 3 7-7' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-image: url(data:image/svg+xml;utf8,<svg\ xmlns=\'http://www.w3.org/2000/svg\'\ viewBox=\'0\ 0\ 24\ 24\'><path\ d=\'M7\ 12.5l3\ 3\ 7-7\'\ fill=\'none\'\ stroke=\'white\'\ stroke-width=\'2.6\'\ stroke-linecap=\'round\'\ stroke-linejoin=\'round\'/></svg>);
 }
 
 .custom-alert.warning .custom-alert-title::before {
   background-color: var(--warning);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><line x1='6' y1='12' x2='18' y2='12' stroke='white' stroke-width='3' stroke-linecap='round'/></svg>");
+  background-image: url(data:image/svg+xml;utf8,<svg\ xmlns=\'http://www.w3.org/2000/svg\'\ viewBox=\'0\ 0\ 24\ 24\'><line\ x1=\'6\'\ y1=\'12\'\ x2=\'18\'\ y2=\'12\'\ stroke=\'white\'\ stroke-width=\'3\'\ stroke-linecap=\'round\'/></svg>);
 }
 
 .custom-alert.error .custom-alert-title::before {
   background-color: var(--danger);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7.5 7.5l9 9M16.5 7.5l-9 9' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round'/></svg>");
+  background-image: url(data:image/svg+xml;utf8,<svg\ xmlns=\'http://www.w3.org/2000/svg\'\ viewBox=\'0\ 0\ 24\ 24\'><path\ d=\'M7.5\ 7.5l9\ 9M16.5\ 7.5l-9\ 9\'\ fill=\'none\'\ stroke=\'white\'\ stroke-width=\'2.6\'\ stroke-linecap=\'round\'/></svg>);
 }
 
 .custom-alert-message {
@@ -126,17 +132,26 @@ html body .custom-alert.warning {
   border-color: var(--warning);
   border-width: 2px;
   border-style: solid;
-  box-shadow:
-    var(--shadow-xl),
-    0 0 0 1px color-mix(in srgb, var(--warning) 18%, transparent) inset,
-    0 0 28px -10px color-mix(in srgb, var(--warning) 28%, transparent);
+  box-shadow: var(--shadow-xl),0 0 0 1px color-mix(in srgb,var(--warning) 18%,transparent) inset,0 0 28px -10px color-mix(in srgb,var(--warning) 28%,transparent);
 }
 
-html body .custom-alert.warning .custom-alert-title { color: var(--warning); }
-html body .custom-alert.warning .btn-primary { background: var(--warning); color: var(--dark); }
+html body .custom-alert.warning .custom-alert-title {
+  color: var(--warning);
+}
 
-html body .custom-alert.error .custom-alert-title { color: var(--danger); }
-html body .custom-alert.error .btn-primary { background: var(--danger); color: var(--light); }
+html body .custom-alert.warning .btn-primary {
+  background: var(--warning);
+  color: var(--dark);
+}
+
+html body .custom-alert.error .custom-alert-title {
+  color: var(--danger);
+}
+
+html body .custom-alert.error .btn-primary {
+  background: var(--danger);
+  color: var(--light);
+}
 
 .custom-alert.info .custom-alert-title {
   color: var(--primary);
@@ -154,23 +169,14 @@ html body .custom-alert.error .btn-primary { background: var(--danger); color: v
 
 .custom-alert .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(235, 111, 146, 0.3);
+  box-shadow: 0 4px 12px rgba(235,111,146,0.3);
 }
 
-html body .custom-alert::before { display: none; }
-
-@keyframes alertFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+html body .custom-alert::before {
+  display: none;
 }
 
-@keyframes alertBarIn {
-  from { transform: scaleX(0.9); opacity: 0; }
-  to   { transform: scaleX(1);   opacity: 1; }
-}
-
-.inline-warning,
-.warning-message {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .inline-warning {
   color: var(--warning);
   font-size: 12px;
   margin-top: 4px;
@@ -178,16 +184,26 @@ html body .custom-alert::before { display: none; }
   font-weight: 500;
 }
 
-/* ===== Confirm Bottom Drawer (Global Component) ===== */
+:where(body:is(.login-page,.categorias-page,.estadistica-page,.config-page)) .warning-message {
+  color: var(--warning);
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+.warning-message {
+  font-weight: 500;
+}
+
 .drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(5px);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
+  transition: opacity 0.25s ease,visibility 0.25s ease;
   z-index: 9998;
 }
 
@@ -203,17 +219,17 @@ html body .custom-alert::before { display: none; }
   left: 50%;
   transform: translateX(-50%) translateY(100%);
   z-index: 9999;
-  width: min(520px, 100vw);
+  width: min(520px,100vw);
   max-width: 100%;
   background: #26233A;
   backdrop-filter: blur(15px);
   border-top: 3px solid #EB6F92;
-  border-left: 3px solid #EB6F92; 
+  border-left: 3px solid #EB6F92;
   border-right: 3px solid #EB6F92;
   border-bottom: none;
   border-radius: 22px 22px 0 0;
   padding: 24px 28px 28px;
-  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
   box-sizing: border-box;
 }
 
@@ -261,9 +277,9 @@ html body .custom-alert::before { display: none; }
 
 .confirm-drawer-cancel:hover {
   border-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
+  background: color-mix(in srgb,var(--danger) 10%,var(--card-bg));
   color: var(--danger);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb,var(--danger) 25%,transparent);
 }
 
 .confirm-drawer-confirm-danger,
@@ -286,15 +302,14 @@ html body .custom-alert::before { display: none; }
 .confirm-drawer-confirm-danger:hover,
 .confirm-drawer-confirm-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 20px rgba(235, 111, 146, 0.35);
+  box-shadow: 0 0 20px rgba(235,111,146,0.35);
 }
 
-@media (max-width: 980px) {
-  .confirm-drawer {
+@media (max-width:980px) {
+  :where(body:is(.login-page,.budgets-page,.estadistica-page)) .confirm-drawer {
     left: 0;
     right: 0;
     width: auto;
-    max-width: 440px;
     margin: 0 auto;
     transform: translateY(100%);
     padding: 14px 14px calc(10px + env(safe-area-inset-bottom));
@@ -302,30 +317,46 @@ html body .custom-alert::before { display: none; }
     border-top: 2px solid var(--primary, #EB6F92);
     border-left: 2px solid var(--primary, #EB6F92);
     border-right: 2px solid var(--primary, #EB6F92);
-    border-bottom: none;
     background: #232136;
   }
+}
 
+@media (max-width:980px) {
+  :where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .confirm-drawer {
+    max-width: 440px;
+    border-bottom: none;
+  }
+}
+
+@media (max-width:980px) {
   .confirm-drawer.drawer-show {
     transform: translateY(0);
   }
+}
 
+@media (max-width:980px) {
   .confirm-drawer-title {
     font-size: 15px;
     margin-bottom: 6px;
   }
+}
 
+@media (max-width:980px) {
   .confirm-drawer-msg {
     margin-top: 0;
     margin-bottom: 12px;
     font-size: 12.5px;
     line-height: 1.4;
   }
+}
 
+@media (max-width:980px) {
   .confirm-drawer-btns {
     gap: 8px;
   }
+}
 
+@media (max-width:980px) {
   .confirm-drawer-cancel,
   .confirm-drawer-confirm-danger,
   .confirm-drawer-confirm-primary {
@@ -335,7 +366,9 @@ html body .custom-alert::before { display: none; }
     border-radius: 8px;
     letter-spacing: 0.3px;
   }
+}
 
+@media (max-width:980px) {
   .confirm-drawer-cancel:hover,
   .confirm-drawer-confirm-danger:hover,
   .confirm-drawer-confirm-primary:hover {
@@ -343,23 +376,24 @@ html body .custom-alert::before { display: none; }
     box-shadow: none;
   }
 }
-/* ===== Fin Confirm Bottom Drawer ===== */
 
-/* ===== Date Picker Component (Global) ===== */
-.date-picker-wrapper {
+:where(body:is(.login-page,.categorias-page,.estadistica-page,.config-page)) .date-picker-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.date-picker-input {
+:where(body:is(.login-page,.categorias-page,.estadistica-page,.config-page)) .date-picker-input {
   padding-right: 50px;
   cursor: pointer;
+}
+
+.date-picker-input {
   background: #1F1D2E;
   backdrop-filter: blur(15px);
 }
 
-.date-picker-btn {
+:where(body:is(.login-page,.categorias-page,.estadistica-page,.config-page)) .date-picker-btn {
   position: absolute;
   right: 0px;
   top: 50%;
@@ -374,18 +408,18 @@ html body .custom-alert::before { display: none; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   font-size: 16px;
 }
 
-.date-picker-btn:hover {
+:where(body:is(.login-page,.categorias-page,.estadistica-page,.config-page)) .date-picker-btn:hover {
   background: var(--primary, #eb6f92);
   color: white;
   transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 0 20px rgba(235, 111, 146, 0.4);
+  box-shadow: 0 0 20px rgba(235,111,146,0.4);
 }
 
-#datePickerModal {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) #datePickerModal {
   z-index: 2200;
 }
 
@@ -452,7 +486,7 @@ html body .custom-alert::before { display: none; }
   letter-spacing: 0.3px;
 }
 
-@media (min-width: 900px) {
+@media (min-width:900px) {
   .date-picker-modal .modal-footer .btn {
     flex: 0 0 auto;
   }
@@ -461,7 +495,7 @@ html body .custom-alert::before { display: none; }
 #todayBtn,
 .date-picker-modal .modal-footer .btn-primary {
   background: var(--primary, #eb6f92);
-  color:#faf4ed;
+  color: #faf4ed;
   border: none;
 }
 
@@ -470,7 +504,7 @@ html body .custom-alert::before { display: none; }
   background: var(--primary, #eb6f92);
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(235, 111, 146, 0.3);
+  box-shadow: 0 4px 12px rgba(235,111,146,0.3);
   filter: brightness(1.08);
 }
 
@@ -482,7 +516,7 @@ html body .custom-alert::before { display: none; }
 
 .calendar-weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7,1fr);
   gap: 5px;
 }
 
@@ -497,7 +531,7 @@ html body .custom-alert::before { display: none; }
 
 .calendar-days {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7,1fr);
 }
 
 .calendar-day {
@@ -507,7 +541,7 @@ html body .custom-alert::before { display: none; }
   justify-content: center;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   font-size: 15px;
   font-weight: 600;
   color: var(--light, #e0def4);
@@ -516,9 +550,9 @@ html body .custom-alert::before { display: none; }
 }
 
 .calendar-day:hover {
-  background: rgba(235, 111, 146, 0.1);
+  background: rgba(235,111,146,0.1);
   color: var(--primary, #eb6f92);
-  border-color: rgba(235, 111, 146, 0.3);
+  border-color: rgba(235,111,146,0.3);
   transform: scale(1.05);
 }
 
@@ -569,8 +603,6 @@ html body .custom-alert::before { display: none; }
 .undo-notification {
   position: fixed;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
   background: #221f33;
   backdrop-filter: blur(15px);
   border: 2px solid #eb6f92;
@@ -582,23 +614,28 @@ html body .custom-alert::before { display: none; }
   z-index: 10000;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   max-width: 360px;
 }
 
-@media (min-width: 769px) {
-  body:not(.sidebar-collapsed) .undo-notification {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .undo-notification {
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+}
+
+@media (min-width:769px) {
+  body:where(.login-page,.budgets-page,.estadistica-page,.config-page):not(.sidebar-collapsed) .undo-notification {
     left: calc(50% + 130px);
   }
 }
 
-.undo-notification.active {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .undo-notification.active {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
 }
 
-.undo-notification span {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .undo-notification span {
   color: var(--light);
   font-weight: 500;
 }
@@ -618,12 +655,13 @@ html body .custom-alert::before { display: none; }
 html body .undo-btn:hover {
   background: var(--primary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(235, 111, 146, 0.3);
+  box-shadow: 0 4px 12px rgba(235,111,146,0.3);
 }
+
 html body .undo-btn:active {
   background: var(--primary);
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(235, 111, 146, 0.4);
+  box-shadow: 0 2px 8px rgba(235,111,146,0.4);
 }
 
 .shortcuts-fab {
@@ -642,62 +680,80 @@ html body .undo-btn:active {
   box-shadow: var(--shadow-lg);
   cursor: pointer;
   z-index: 1001;
-  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+  transition: transform .15s ease,box-shadow .2s ease,background .2s ease;
 }
 
-/* Desactivar efectos hover/active en dispositivos móviles */
-@media (hover: none) and (pointer: coarse), (max-width: 768px) {
-  html body .undo-btn:hover,
-  html body .undo-btn:active,
+@media (hover:none) and (pointer:coarse),(max-width:768px) {
+  html body .undo-btn:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(235,111,146,0.2);
+  }
+}
+
+@media (hover:none) and (pointer:coarse),(max-width:768px) {
+  html body .undo-btn:active {
+    transform: none;
+  }
+}
+
+@media (hover:none) and (pointer:coarse),(max-width:768px) {
   html body .custom-alert .btn-primary:hover,
   html body .custom-alert .btn-secondary:hover,
   html body .custom-alert .btn-danger:hover,
   html body .shortcuts-fab:hover {
     transform: none;
-    box-shadow: 0 2px 8px rgba(235, 111, 146, 0.2);
+    box-shadow: 0 2px 8px rgba(235,111,146,0.2);
   }
-  
+}
+
+@media (hover:none) and (pointer:coarse),(max-width:768px) {
   html body .undo-btn:active {
-    box-shadow: 0 2px 8px rgba(235, 111, 146, 0.2);
+    box-shadow: 0 2px 8px rgba(235,111,146,0.2);
   }
 }
 
-.shortcuts-fab:hover { 
-  transform: translateY(-2px); 
-  box-shadow: var(--shadow-xl); 
+.shortcuts-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
 }
 
-.shortcuts-fab:focus { 
-  outline: 2px solid var(--primary); 
-  outline-offset: 2px; 
+.shortcuts-fab:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-.shortcuts-list {
+:where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .shortcuts-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px 16px;
 }
 
-.shortcuts-list li { 
-  color: var(--light); 
-  display: flex; 
-  align-items: center; 
-  gap: 10px; 
+.shortcuts-list {
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
 }
 
-.shortcut-keys {
+:where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .shortcuts-list li {
+  color: var(--light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+:where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .shortcut-keys {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.shortcuts-note { 
-  color: var(--gray); 
-  margin-top: 12px; 
-  font-size: 13px; 
+:where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .shortcuts-note {
+  color: var(--gray);
+  font-size: 13px;
+}
+
+.shortcuts-note {
+  margin-top: 12px;
 }
 
 kbd {
@@ -711,17 +767,25 @@ kbd {
   color: var(--light);
 }
 
-[data-theme="light"] .custom-alert {
+:where(:root:has(> :is(body:is(.login-page,.categorias-page,.estadistica-page))))[data-theme="light"] .custom-alert {
   background: #fffaf3;
-  color: #575279;
   border: 3px solid var(--primary);
 }
 
-[data-theme="light"] .custom-alert-title { color: #575279; }
-[data-theme="light"] .custom-alert-message { color: #9893a5; }
+:where(:root:has(> :is(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page))))[data-theme="light"] .custom-alert,
+:where(:root:has(> :is(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page))))[data-theme="light"] .custom-alert-title {
+  color: #575279;
+}
 
-[data-theme="light"] .custom-alert .btn-primary { color: #ffffff; }
-[data-theme="light"] .custom-alert .btn-danger  { color: #ffffff; }
+:where(:root:has(> :is(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page))))[data-theme="light"] .custom-alert-message {
+  color: #9893a5;
+}
+
+[data-theme="light"] .custom-alert .btn-primary,
+[data-theme="light"] .custom-alert .btn-danger {
+  color: #ffffff;
+}
+
 [data-theme="light"] .custom-alert .btn-secondary {
   background: #fffaf3;
   color: #575279;
@@ -729,10 +793,10 @@ kbd {
 }
 
 [data-theme="light"] .custom-alert .btn-secondary:hover {
-border-color: var(--danger);
-background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
-color: var(--danger);
-box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
+  border-color: var(--danger);
+  background: color-mix(in srgb,var(--danger) 10%,var(--card-bg));
+  color: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb,var(--danger) 25%,transparent);
 }
 
 [data-theme="light"] body .custom-alert.success .btn-primary {
@@ -743,20 +807,20 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
   background: var(--primary);
   color: var(--card-bg);
   border: none;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 22%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb,var(--primary) 22%,transparent);
 }
 
 [data-theme="light"] .shortcuts-fab:hover {
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+  box-shadow: 0 6px 18px color-mix(in srgb,var(--primary) 35%,transparent);
 }
 
 [data-theme="light"] .shortcuts-fab:focus {
   outline: none;
-  box-shadow: 0 0 0 0 transparent, 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+  box-shadow: 0 0 0 0 transparent,0 6px 18px color-mix(in srgb,var(--primary) 35%,transparent);
 }
 
 [data-theme="light"] .drawer-overlay {
-  background-color: rgba(250, 244, 237, 0.7);
+  background-color: rgba(250,244,237,0.7);
   backdrop-filter: blur(4px);
 }
 
@@ -779,11 +843,11 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
   box-shadow: none;
 }
 
-[data-theme="light"] .confirm-drawer-cancel:hover {
+:where(:root:has(> :is(body:is(.login-page,.categorias-page,.estadistica-page,.config-page))))[data-theme="light"] .confirm-drawer-cancel:hover {
   border-color: var(--danger, #b4637a);
-  background: color-mix(in srgb, var(--danger, #b4637a) 10%, #fffaf3);
+  background: color-mix(in srgb,var(--danger, #b4637a) 10%,#fffaf3);
   color: var(--danger, #b4637a);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger, #b4637a) 25%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb,var(--danger, #b4637a) 25%,transparent);
 }
 
 [data-theme="light"] .confirm-drawer-confirm-danger,
@@ -792,20 +856,22 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
   color: #ffffff;
 }
 
-[data-theme="light"] .confirm-drawer-confirm-danger:hover,
+:where(:root:has(> :is(body:is(.login-page,.categorias-page,.estadistica-page,.config-page))))[data-theme="light"] .confirm-drawer-confirm-danger:hover,
 [data-theme="light"] .confirm-drawer-confirm-primary:hover {
-  box-shadow: 0 0 32px rgba(180, 99, 122, 0.50);
+  box-shadow: 0 0 32px rgba(180,99,122,0.50);
 }
 
-/* Light Theme DatePicker */
-[data-theme="light"] .date-picker-input {
+:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))[data-theme="light"] .date-picker-input {
   background: #f2e9e1;
   color: var(--gray, #575279);
   border: none;
 }
 
-[data-theme="light"] .date-picker-input:focus {
+:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))[data-theme="light"] .date-picker-input:focus {
   outline: none;
+}
+
+[data-theme="light"] .date-picker-input:focus {
   background: #f5efea;
 }
 
@@ -836,7 +902,7 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 [data-theme="light"] #datePickerModal .calendar-day:hover:not(.disabled):not(.other-month) {
-  background: rgba(180, 99, 122, 0.15);
+  background: rgba(180,99,122,0.15);
   color: #b4637a;
 }
 
@@ -864,12 +930,8 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
   box-shadow: var(--btn-shadow-hover);
 }
 
-/* ==========================================================================
-   Universal Scrollbar Styles (Tema Oscuro por defecto / Tema Claro con data-theme)
-   ========================================================================== */
-
-html,
-body,
+html:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)))),
+body:where(.login-page,.budgets-page,.estadistica-page,.config-page),
 .main-content,
 * {
   scrollbar-width: auto;
@@ -879,14 +941,14 @@ body,
 [data-theme="light"],
 [data-theme="light"] html,
 [data-theme="light"] body,
-[data-theme="light"] .main-content,
+:where(:root:has(> :is(body:is(.login-page))))[data-theme="light"] .main-content,
 [data-theme="light"] * {
   scrollbar-color: #b4637a transparent;
 }
 
-::-webkit-scrollbar,
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) ::-webkit-scrollbar,
+html:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))::-webkit-scrollbar,
+body:where(.login-page,.budgets-page,.estadistica-page,.config-page)::-webkit-scrollbar,
 .main-content::-webkit-scrollbar,
 *::-webkit-scrollbar {
   width: 14px;
@@ -894,44 +956,54 @@ body::-webkit-scrollbar,
   background: transparent;
 }
 
-::-webkit-scrollbar-track,
-html::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) ::-webkit-scrollbar-track,
+html:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))::-webkit-scrollbar-track,
+body:where(.login-page,.budgets-page,.estadistica-page,.config-page)::-webkit-scrollbar-track,
 .main-content::-webkit-scrollbar-track,
 *::-webkit-scrollbar-track {
   background: transparent;
 }
 
-::-webkit-scrollbar-thumb,
-html::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) ::-webkit-scrollbar-thumb,
+html:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))::-webkit-scrollbar-thumb,
+body:where(.login-page,.budgets-page,.estadistica-page,.config-page)::-webkit-scrollbar-thumb,
 .main-content::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb {
   background: #eb6f92;
   border-radius: 12px;
 }
 
-::-webkit-scrollbar-thumb:hover,
-html::-webkit-scrollbar-thumb:hover,
-body::-webkit-scrollbar-thumb:hover,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) ::-webkit-scrollbar-thumb:hover,
+html:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))::-webkit-scrollbar-thumb:hover,
+body:where(.login-page,.budgets-page,.estadistica-page,.config-page)::-webkit-scrollbar-thumb:hover,
 .main-content::-webkit-scrollbar-thumb:hover,
 *::-webkit-scrollbar-thumb:hover {
   background: #f08ca8;
 }
 
-::-webkit-scrollbar-corner,
-html::-webkit-scrollbar-corner,
-body::-webkit-scrollbar-corner,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) ::-webkit-scrollbar-corner,
+html:where(:root:has(> :is(body:is(.login-page,.budgets-page,.estadistica-page,.config-page))))::-webkit-scrollbar-corner,
+body:where(.login-page,.budgets-page,.estadistica-page,.config-page)::-webkit-scrollbar-corner,
 .main-content::-webkit-scrollbar-corner,
 *::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* Light Theme Scrollbars */
 [data-theme="light"] ::-webkit-scrollbar-thumb,
 [data-theme="light"] html::-webkit-scrollbar-thumb,
-[data-theme="light"] body::-webkit-scrollbar-thumb,
-[data-theme="light"] .main-content::-webkit-scrollbar-thumb,
+[data-theme="light"] body::-webkit-scrollbar-thumb {
+  background: #b4637a;
+  border-radius: 12px;
+}
+
+:where(:root:has(> :is(body:is(.login-page))))[data-theme="light"] .main-content::-webkit-scrollbar-thumb {
+  background: #b4637a;
+}
+
+[data-theme="light"] .main-content::-webkit-scrollbar-thumb {
+  border-radius: 12px;
+}
+
 [data-theme="light"] *::-webkit-scrollbar-thumb {
   background: #b4637a;
   border-radius: 12px;
@@ -940,23 +1012,25 @@ body::-webkit-scrollbar-corner,
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover,
 [data-theme="light"] html::-webkit-scrollbar-thumb:hover,
 [data-theme="light"] body::-webkit-scrollbar-thumb:hover,
-[data-theme="light"] .main-content::-webkit-scrollbar-thumb:hover,
+:where(:root:has(> :is(body:is(.login-page))))[data-theme="light"] .main-content::-webkit-scrollbar-thumb:hover,
 [data-theme="light"] *::-webkit-scrollbar-thumb:hover {
   background: #9d4e64;
 }
 
-@media (max-width: 980px) {
+@media (max-width:980px) {
   :root {
-    --nav-bottom-padding: 120px;
+    --nav-bottom-padding:  120px;
   }
+}
 
-  /* Padding inferior del contenido principal para no quedar detrás del nav */
-  body .main-content {
+@media (max-width:980px) {
+  body:where(.login-page,.budgets-page,.config-page) .main-content {
     padding-bottom: calc(var(--nav-bottom-padding) + env(safe-area-inset-bottom));
   }
+}
 
-  /* Barra de navegación flotante */
-  .mobile-bottom-nav {
+@media (max-width:980px) {
+  :where(body:is(.login-page)) .mobile-bottom-nav {
     position: fixed;
     left: 3%;
     right: 3%;
@@ -966,11 +1040,13 @@ body::-webkit-scrollbar-corner,
     align-items: end;
     padding: 10px 11px calc(10px + env(safe-area-inset-bottom));
     border-radius: 20px;
-    border: 3px solid rgba(180, 99, 122, 0.25);
+    border: 3px solid rgba(180,99,122,0.25);
     backdrop-filter: blur(12px);
   }
+}
 
-  .mobile-nav-item {
+@media (max-width:980px) {
+  :where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .mobile-nav-item {
     border: 0;
     text-decoration: none;
     background: transparent;
@@ -982,27 +1058,45 @@ body::-webkit-scrollbar-corner,
     gap: 4px;
     min-height: 48px;
     border-radius: 12px;
+  }
+}
+
+@media (max-width:980px) {
+  .mobile-nav-item {
     cursor: pointer;
   }
+}
 
-  .mobile-nav-item i,
+@media (max-width:980px) {
+  :where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .mobile-nav-item i,
   .mobile-nav-create i {
     font-size: 16px;
   }
+}
 
-  .mobile-nav-label {
+@media (max-width:980px) {
+  :where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .mobile-nav-label {
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.2px;
     line-height: 1;
   }
+}
 
+@media (max-width:980px) {
+  .mobile-nav-label {
+    letter-spacing: 0.2px;
+  }
+}
+
+@media (max-width:980px) {
   .mobile-nav-item.active {
     color: var(--primary, #eb6f92);
-    background: rgba(180, 99, 122, 0.14);
+    background: rgba(180,99,122,0.14);
   }
+}
 
-  .mobile-nav-create {
+@media (max-width:980px) {
+  :where(body:is(.login-page,.config-page)) .mobile-nav-create {
     width: 50px;
     height: 50px;
     justify-self: center;
@@ -1011,55 +1105,56 @@ body::-webkit-scrollbar-corner,
     background: #EB6F92;
     border: none;
   }
+}
 
+@media (max-width:980px) {
   .mobile-nav-create .mobile-nav-label {
     display: none;
   }
+}
 
+@media (max-width:980px) {
   [data-theme="light"] .mobile-nav-create {
     background: #b4637a;
   }
+}
 
-  /* Temas */
+@media (max-width:980px) {
   [data-theme="light"] .mobile-bottom-nav {
-    background: rgba(255, 250, 243, 0.95);
+    background: rgba(255,250,243,0.95);
   }
+}
 
+@media (max-width:980px) {
   [data-theme="dark"] .mobile-bottom-nav,
-  .mobile-bottom-nav {
+  :where(body:is(.login-page,.categorias-page,.budgets-page,.estadistica-page)) .mobile-bottom-nav {
     background: #1F1D2E;
   }
 }
 
-/* ===== Animación Global para Dropdowns (Apertura y Cierre) ===== */
-html body .custom-dropdown .custom-dropdown-options {
-  display: block;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-8px) scale(0.98);
-  transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.2s;
-  pointer-events: none;
-  transform-origin: top center;
-}
-
-html body .custom-dropdown.open .custom-dropdown-options {
-  visibility: visible;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
+i,
+svg,
+.fa,
+.fas,
+.far,
+.fab,
+.fal,
+.fad,
+.bi,
+.icon,
+.btn i,
+.btn svg,
+.btn-icon i,
+.btn-icon svg,
+.nav-item i,
+.nav-item svg,
+.category-type-btn i,
+.transaction-type-btn i,
+.category-menu-item i,
+.mobile-actions-btn i {
   animation: none;
 }
 
-/* ===== Desactivación Global de Animaciones en Iconos ===== */
-i, svg, .fa, .fas, .far, .fab, .fal, .fad, .bi, .icon,
-.btn i, .btn svg, .btn-icon i, .btn-icon svg,
-.nav-item i, .nav-item svg,
-.category-type-btn i, .transaction-type-btn i,
-.category-menu-item i, .mobile-actions-btn i {
-  animation: none ;
-}
-
-/* ===== Lucide Icons Standard Styling ===== */
 .lucide,
 .lucide-icon,
 svg.lucide {
@@ -1078,15 +1173,13 @@ svg.lucide {
 .btn .lucide,
 .btn .lucide-icon,
 .btn svg.lucide {
-  width: 1em;
-  height: 1em;
   vertical-align: -0.125em;
   width: 17px;
   height: 17px;
 }
 
-.nav-item i,
-.nav-item svg,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .nav-item i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .nav-item svg,
 .nav-item .lucide,
 .nav-link .lucide,
 .nav-link svg.lucide,
@@ -1102,38 +1195,38 @@ svg.lucide {
   height: 1.4em;
 }
 
-.summary-card .card-title > i,
-.summary-card .card-title > svg {
+:where(body:is(.login-page,.config-page)) .summary-card .card-title>i,
+:where(body:is(.login-page,.config-page)) .summary-card .card-title>svg {
   width: 1.4em;
   height: 1.4em;
   stroke-width: 2.5;
 }
 
-.category-type-btn i,
-.category-type-btn svg,
-.transaction-type-btn i,
-.transaction-type-btn svg {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn svg,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn svg {
   stroke-width: 2.5;
 }
 
-.category-type-btn[data-value="income"] i,
-.category-type-btn[data-value="income"] svg,
-.transaction-type-btn[data-value="income"] i,
-.transaction-type-btn[data-value="income"] svg {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn[data-value="income"] i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn[data-value="income"] svg,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn[data-value="income"] i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn[data-value="income"] svg {
   color: var(--success, #2D957B);
 }
 
-.category-type-btn[data-value="expense"] i,
-.category-type-btn[data-value="expense"] svg,
-.transaction-type-btn[data-value="expense"] i,
-.transaction-type-btn[data-value="expense"] svg {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn[data-value="expense"] i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn[data-value="expense"] svg,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn[data-value="expense"] i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn[data-value="expense"] svg {
   color: var(--danger, #eb6f92);
 }
 
-.category-type-btn[data-value=""] i,
-.category-type-btn[data-value=""] svg,
-.transaction-type-btn[data-value=""] i,
-.transaction-type-btn[data-value=""] svg {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn[data-value=""] i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .category-type-btn[data-value=""] svg,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn[data-value=""] i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .transaction-type-btn[data-value=""] svg {
   color: var(--accent, #c4a7e7);
 }
 
@@ -1141,47 +1234,33 @@ svg.lucide {
   animation: lucide-spin 1s linear infinite !important;
 }
 
-@keyframes lucide-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ===== Summary Cards Icons & Values Colors ===== */
-.summary-card.income .card-title i,
-.summary-card.income .card-title svg,
-.summary-card.daily-income .card-title i,
-.summary-card.daily-income .card-title svg {
+:where(body:is(.login-page,.config-page)) .summary-card.income .card-title i,
+:where(body:is(.login-page,.config-page)) .summary-card.income .card-title svg,
+:where(body:is(.login-page,.categorias-page,.budgets-page,.config-page)) .summary-card.daily-income .card-title i,
+:where(body:is(.login-page,.categorias-page,.budgets-page,.config-page)) .summary-card.daily-income .card-title svg {
   color: var(--success, #2D957B);
 }
 
-.summary-card.expenses .card-title i,
-.summary-card.expenses .card-title svg,
-.summary-card.daily-expense .card-title i,
-.summary-card.daily-expense .card-title svg {
+:where(body:is(.login-page,.config-page)) .summary-card.expenses .card-title i,
+:where(body:is(.login-page,.config-page)) .summary-card.expenses .card-title svg,
+:where(body:is(.login-page,.categorias-page,.budgets-page,.config-page)) .summary-card.daily-expense .card-title i,
+:where(body:is(.login-page,.categorias-page,.budgets-page,.config-page)) .summary-card.daily-expense .card-title svg {
   color: var(--danger, #eb6f92);
 }
 
-.summary-card.balance .card-title i,
-.summary-card.balance .card-title svg,
-.summary-card.net-daily .card-title i,
-.summary-card.net-daily .card-title svg {
+:where(body:is(.login-page,.config-page)) .summary-card.balance .card-title i,
+:where(body:is(.login-page,.config-page)) .summary-card.balance .card-title svg,
+:where(body:is(.login-page,.categorias-page,.budgets-page,.config-page)) .summary-card.net-daily .card-title i,
+:where(body:is(.login-page,.categorias-page,.budgets-page,.config-page)) .summary-card.net-daily .card-title svg {
   color: var(--accent, #c4a7e7);
 }
 
-.summary-card.misc .card-title i,
-.summary-card.misc .card-title svg {
+:where(body:is(.login-page,.categorias-page,.config-page)) .summary-card.misc .card-title i,
+:where(body:is(.login-page,.categorias-page,.config-page)) .summary-card.misc .card-title svg,
+:where(body:is(.login-page,.categorias-page,.config-page)) .summary-card.misc .card-value {
   color: var(--warning, #f6c177);
 }
 
-.summary-card.misc .card-value {
-  color: var(--warning, #f6c177);
-}
-
-/* Iconos para tarjetas de insights (Mejor mes, Gasto dominante, Balance neto) */
 .stats-insights .insight-icon,
 .stats-insights .insight-icon i,
 .stats-insights .insight-icon svg {
@@ -1195,10 +1274,7 @@ svg.lucide {
   stroke-width: 2;
 }
 
-/* ===== Iconos de Estado Vacío (Empty State) ===== */
-.empty-state i,
-.empty-state svg,
-.empty-state .lucide {
+:where(body:is(.login-page,.config-page)) .empty-state i {
   width: 64px;
   height: 64px;
   min-width: 64px;
@@ -1206,11 +1282,41 @@ svg.lucide {
   font-size: 64px;
   color: var(--primary, #eb6f92);
   stroke: var(--primary, #eb6f92);
+}
+
+.empty-state i {
   display: inline-block;
 }
 
-/* ===== Badge de Tipo de Transacción (Ingreso / Gasto) ===== */
-.tx-type-badge {
+:where(body:is(.login-page,.config-page)) .empty-state svg {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  font-size: 64px;
+  color: var(--primary, #eb6f92);
+  stroke: var(--primary, #eb6f92);
+}
+
+.empty-state svg {
+  display: inline-block;
+}
+
+:where(body:is(.login-page,.config-page)) .empty-state .lucide {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  font-size: 64px;
+  color: var(--primary, #eb6f92);
+  stroke: var(--primary, #eb6f92);
+}
+
+.empty-state .lucide {
+  display: inline-block;
+}
+
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .tx-type-badge {
   width: 18px;
   height: 18px;
   border-radius: 5px;
@@ -1220,20 +1326,20 @@ svg.lucide {
   flex-shrink: 0;
 }
 
-.tx-type-badge.income {
-  background: color-mix(in srgb, var(--success, #2a9d8f) 15%, var(--card-bg, transparent));
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .tx-type-badge.income {
+  background: color-mix(in srgb,var(--success, #2a9d8f) 15%,var(--card-bg, transparent));
   color: var(--success, #2a9d8f);
-  border: 1px solid color-mix(in srgb, var(--success, #2a9d8f) 30%, transparent);
+  border: 1px solid color-mix(in srgb,var(--success, #2a9d8f) 30%,transparent);
 }
 
-.tx-type-badge.expense {
-  background: color-mix(in srgb, var(--danger, #eb6f92) 15%, var(--card-bg, transparent));
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .tx-type-badge.expense {
+  background: color-mix(in srgb,var(--danger, #eb6f92) 15%,var(--card-bg, transparent));
   color: var(--danger, #eb6f92);
-  border: 1px solid color-mix(in srgb, var(--danger, #eb6f92) 30%, transparent);
+  border: 1px solid color-mix(in srgb,var(--danger, #eb6f92) 30%,transparent);
 }
 
-.tx-type-badge i,
-.tx-type-badge svg {
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .tx-type-badge i,
+:where(body:is(.login-page,.budgets-page,.estadistica-page,.config-page)) .tx-type-badge svg {
   width: 11px;
   height: 11px;
   stroke-width: 2.5;
@@ -1241,3 +1347,8 @@ svg.lucide {
   stroke: currentColor;
 }
 
+@keyframes alertFadeIn{from{opacity:0}to{opacity:1}}
+
+@keyframes alertBarIn{from{transform:scaleX(0.9);opacity:0}to{transform:scaleX(1);opacity:1}}
+
+@keyframes lucide-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}

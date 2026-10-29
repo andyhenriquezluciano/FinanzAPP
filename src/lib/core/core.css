@@ -1,29 +1,6 @@
-/**
- * FinanzApp - Centralized Core Design System
- * 
- * Agrupa y orquesta todos los subsistemas fundamentales de estilos:
- * - tokens: Variables CSS (colores Rose Pine, tema oscuro/claro, elevación)
- * - base: Resets, layout general (.app-container, .sidebar, .main-content) y scrollbars
- * - buttons: Sistema de botones (.btn, .btn-primary, .btn-secondary, etc.)
- * - cards: Tarjetas de resumen (.summary-cards, .card, etc.)
- * - forms: Estilos de formularios, inputs, selectores y grupos
- * - modals: Estructura y animaciones de modales accesibles
- */
-
-@import './tokens.css';
-@import './base.css';
-@import './buttons.css';
-@import './cards.css';
-@import './forms.css';
-@import './modals.css';
-
-/* Defensiva de Navegación Móvil: Ocultar en pantallas Desktop */
-@media (min-width: 981px) {
-  .mobile-actions-dropdown,
-  .mobile-actions-panel,
-  .mobile-bottom-nav,
-  .mobile-drawer-backdrop {
-    display: none !important;
-  }
-}
-
+@import './tokens.css?v=20261029009';
+@import './base.css?v=20261029009';
+@import './buttons.css?v=20261029009';
+@import './cards.css?v=20261029009';
+@import './forms.css?v=20261029009';
+@import './modals.css?v=20261029009';

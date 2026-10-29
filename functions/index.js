@@ -13,7 +13,7 @@ const crypto = require('crypto');
 
 admin.initializeApp();
 
-const { encryptSecret, decryptSecret, encryptKms, decryptKms } = require('./src/cryptoHelper');
+const { decryptSecret } = require('./src/cryptoHelper');
 
 const app = express();
 const ADMIN_UIDS = new Set(
@@ -960,7 +960,7 @@ async function gmailPubSubHandlerImpl(message) {
     const userDoc = await admin.firestore().collection('users').doc(uid).get();
     const data = userDoc.exists ? userDoc.data() : {};
     const encrypted = data?.gmail?.encrypted_refresh_token;
-    const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+    const refresh_token = encrypted ? await decryptSecret(encrypted) : data?.gmail?.refresh_token;
     if (!refresh_token) return console.warn('[gmailPubSub] no refresh token for', uid);
 
     let tokenData;
@@ -1097,7 +1097,7 @@ async function gmailWatchRenewImpl(context) {
 
       try {
         const encrypted = data?.gmail?.encrypted_refresh_token;
-        const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+        const refresh_token = encrypted ? await decryptSecret(encrypted) : data?.gmail?.refresh_token;
         if (!refresh_token) {
           console.warn('[gmailWatchRenew] no refresh token for', uid);
           continue;

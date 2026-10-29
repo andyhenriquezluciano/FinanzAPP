@@ -1,14 +1,18 @@
 const crypto = require('crypto');
 
 const KMS_KEY_NAME = process.env.KMS_KEY_NAME || null;
-const FALLBACK_SECRET_KEY = crypto.createHash('sha256')
-  .update(process.env.IMAP_ENCRYPTION_KEY || process.env.ENCRYPTION_SECRET || process.env.SESSION_SECRET || 'finanzapp-vault-secret-salt-2026')
-  .digest();
+function getLocalKey() {
+  const secret = process.env.IMAP_ENCRYPTION_KEY || process.env.ENCRYPTION_SECRET || process.env.SESSION_SECRET;
+  if (!secret || Buffer.byteLength(secret, 'utf8') < 32) {
+    throw new Error('Configura KMS_KEY_NAME o una IMAP_ENCRYPTION_KEY privada de al menos 32 bytes.');
+  }
+  return crypto.createHash('sha256').update(secret).digest();
+}
 
 async function encryptKms(plaintext) {
   if (!plaintext) return null;
   if (!KMS_KEY_NAME) {
-    return plaintext;
+    throw new Error('KMS_KEY_NAME no está configurada.');
   }
   const { KeyManagementServiceClient } = require('@google-cloud/kms');
   const kmsClient = new KeyManagementServiceClient();
@@ -19,7 +23,7 @@ async function encryptKms(plaintext) {
 async function decryptKms(ciphertextBase64) {
   if (!ciphertextBase64) return null;
   if (!KMS_KEY_NAME) {
-    return ciphertextBase64;
+    throw new Error('KMS_KEY_NAME no está configurada.');
   }
   const { KeyManagementServiceClient } = require('@google-cloud/kms');
   const kmsClient = new KeyManagementServiceClient();
@@ -35,15 +39,10 @@ async function decryptKms(ciphertextBase64) {
 async function encryptSecret(plaintext) {
   if (!plaintext) return null;
   if (KMS_KEY_NAME) {
-    try {
-      const encrypted = await encryptKms(plaintext);
-      if (encrypted && encrypted !== plaintext) return encrypted;
-    } catch (e) {
-      console.warn('[encryptSecret] KMS falló, usando AES-256-GCM:', e.message);
-    }
+    return encryptKms(plaintext);
   }
   const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv('aes-256-gcm', FALLBACK_SECRET_KEY, iv);
+  const cipher = crypto.createCipheriv('aes-256-gcm', getLocalKey(), iv);
   let encrypted = cipher.update(plaintext, 'utf8', 'hex');
   encrypted += cipher.final('hex');
   const authTag = cipher.getAuthTag().toString('hex');
@@ -51,7 +50,7 @@ async function encryptSecret(plaintext) {
 }
 
 /**
- * Descifra secretos soportando tanto AES-256-GCM como KMS o texto plano heredado.
+ * Descifra secretos AES-256-GCM o KMS sin aceptar texto plano como alternativa.
  * @param {string} ciphertext
  * @returns {Promise<string|null>}
  */
@@ -64,31 +63,24 @@ async function decryptSecret(ciphertext) {
         const iv = Buffer.from(parts[1], 'hex');
         const authTag = Buffer.from(parts[2], 'hex');
         const encrypted = parts[3];
-        const decipher = crypto.createDecipheriv('aes-256-gcm', FALLBACK_SECRET_KEY, iv);
+        const decipher = crypto.createDecipheriv('aes-256-gcm', getLocalKey(), iv);
         decipher.setAuthTag(authTag);
         let decrypted = decipher.update(encrypted, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
         return decrypted;
       } catch (err) {
-        console.error('[decryptSecret] Error descifrando AES-256:', err.message);
-        return null;
+        throw new Error('No se pudo descifrar el secreto.', { cause: err });
       }
     }
   }
   if (KMS_KEY_NAME) {
-    try {
-      return await decryptKms(ciphertext);
-    } catch (e) {
-      console.warn('[decryptSecret] KMS falló, retornando como texto plano:', e.message);
-    }
+    return decryptKms(ciphertext);
   }
-  return ciphertext;
+  throw new Error('Formato de secreto no válido o cifrado no configurado.');
 }
 
 module.exports = {
   encryptSecret,
-  decryptSecret,
-  encryptKms,
-  decryptKms
+  decryptSecret
 };
 

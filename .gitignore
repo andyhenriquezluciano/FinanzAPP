@@ -12,6 +12,7 @@ src/__config.js
 # Test artifacts
 test-results/
 playwright-report/
+.css-audit/
 
 # Firebase Cache & Debug logs
 .firebase/
@@ -53,3 +54,33 @@ ehthumbs.db
 Desktop.ini
 
 .archify/
+
+# Local exports, backups and captures
+/data/
+/finanzapp-datos-demo.json
+/backups/
+*.bak
+*.orig
+*.har
+*.tmp
+.DS_Store
+
+# Local assistant and tool settings
+.agents/
+.codex/
+.claude/
+.gemini/
+.codegraph/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.mcp.json
+
+# Private credentials
+credentials.json
+client_secret*.json
+serviceAccount*.json
+service-account*.json
+*.pfx
+*.jks
+*.keystore

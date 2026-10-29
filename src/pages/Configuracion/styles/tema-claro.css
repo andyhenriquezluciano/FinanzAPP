@@ -1,54 +1,48 @@
-/* ====================================================
-   Configuracion — Tema Claro
-   ==================================================== */
-
-/* ---------- Variables ---------- */
+/* configuracion: theme. Valores efectivos conservados desde la referencia visual. */
 [data-theme="light"] {
-  --gmail-dot-connected: #2d957b;
-  --gmail-dot-disconnected: #b4637a;
-  --primary: #b4637a;
-  --primary-dark: #d7827e;
-  --secondary: #286983;
-  --accent: #9c6bd7;
-  --dark: #faf4ed;
-  --darker: #fffaf3;
-  --card-bg: #fffaf3;
-  --card-border: #f2e9e1;
-  --card-hover: #f4ede8;
-  --light: #575279;
-  --gray: #9893a5;
-  --gray-light: #797593;
-  --success: #2D957B;
-  --success-light: #46a987;
-  --warning: #ea9d34;
-  --danger: #b4637a;
-  --danger-light: #d7827e;
-  --scrollbar-accent: #b4637a;
-  --card-shadow-hover: 0 0 20px rgba(180, 99, 122, 0.50);
-  --btn-shadow-hover: 0 0 20px rgba(180, 99, 122, 0.50);
-
-  --config-page-bg: #faf4ed;
-  --config-card-bg: #fffaf3;
-  --config-section-bg: #fffaf3;
-  --config-card-border: #f2e9e1;
-  --config-text: #575279;
-  --config-muted: #797593;
-  --config-input-bg: #f5efea;
-  --config-input-border: #f2e9e1;
-  --config-pill-bg: rgba(180, 99, 122, 0.14);
-  --config-pill-text: #b4637a;
-  --config-focus: rgba(180, 99, 122, 0.3);
-  --config-success: #2d957b;
-  --config-danger: #b4637a;
-  --mobile-nav-bg: rgba(255, 250, 243, 0.96);
-  --mobile-nav-border: rgba(180, 99, 122, 0.28);
-  --mobile-nav-text: #9893a5;
-  --mobile-nav-active-bg: rgba(180, 99, 122, 0.16);
-  --mobile-nav-active-text: #b4637a;
-  --sidebar-bg: #faf4ed;
+  --gmail-dot-connected:  #2d957b;
+  --gmail-dot-disconnected:  #b4637a;
+  --primary:  #b4637a;
+  --primary-dark:  #d7827e;
+  --secondary:  #286983;
+  --accent:  #9c6bd7;
+  --dark:  #faf4ed;
+  --darker:  #fffaf3;
+  --card-bg:  #fffaf3;
+  --card-border:  #f2e9e1;
+  --card-hover:  #f4ede8;
+  --light:  #575279;
+  --gray:  #9893a5;
+  --gray-light:  #797593;
+  --success:  #2D957B;
+  --success-light:  #46a987;
+  --warning:  #ea9d34;
+  --danger:  #b4637a;
+  --danger-light:  #d7827e;
+  --scrollbar-accent:  #b4637a;
+  --card-shadow-hover:  0 0 20px rgba(180, 99, 122, 0.50);
+  --btn-shadow-hover:  0 0 20px rgba(180, 99, 122, 0.50);
+  --config-page-bg:  #faf4ed;
+  --config-card-bg:  #fffaf3;
+  --config-section-bg:  #fffaf3;
+  --config-card-border:  #f2e9e1;
+  --config-text:  #575279;
+  --config-muted:  #797593;
+  --config-input-bg:  #f5efea;
+  --config-input-border:  #f2e9e1;
+  --config-pill-bg:  rgba(180, 99, 122, 0.14);
+  --config-pill-text:  #b4637a;
+  --config-focus:  rgba(180, 99, 122, 0.3);
+  --config-success:  #2d957b;
+  --config-danger:  #b4637a;
+  --mobile-nav-bg:  rgba(255, 250, 243, 0.96);
+  --mobile-nav-border:  rgba(180, 99, 122, 0.28);
+  --mobile-nav-text:  #9893a5;
+  --mobile-nav-active-bg:  rgba(180, 99, 122, 0.16);
+  --mobile-nav-active-text:  #b4637a;
+  --sidebar-bg:  #faf4ed;
 }
 
-/* ---------- Layout ---------- */
 [data-theme="light"] body.config-page {
   color: var(--config-text);
   background: var(--config-page-bg);
@@ -73,7 +67,6 @@
   background: #964f62;
 }
 
-/* ---------- Sidebar ---------- */
 [data-theme="light"] .sidebar {
   background: #f2e9e1;
 }
@@ -87,7 +80,7 @@
 }
 
 [data-theme="light"] .nav-item:hover {
-  background: color-mix(in srgb, var(--primary, #b4637a) 12%, #fffaf3);
+  background: color-mix(in srgb,var(--primary, #b4637a) 12%,#fffaf3);
   color: var(--primary, #b4637a);
   transform: translateX(4px);
   border-color: transparent;
@@ -101,7 +94,7 @@
 
 [data-theme="light"] .logo-icon {
   background: transparent !important;
-  background-image: url('/assets/logo-f-claro.png') !important;
+  background-image: url(/assets/logo-f-claro.png) !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
@@ -130,17 +123,12 @@
   color: #575279;
 }
 
-/* ---------- Config cards ---------- */
 [data-theme="light"] .config-card {
   background: var(--config-card-bg);
   border: 3px solid #f2e9e1;
 }
 
-[data-theme="light"] .card-title {
-  color: var(--config-text);
-}
-
-/* ---------- Profile section ---------- */
+[data-theme="light"] .card-title,
 [data-theme="light"] .profile-name {
   color: var(--config-text);
 }
@@ -149,7 +137,6 @@
   color: var(--config-muted);
 }
 
-/* ---------- Preferences form ---------- */
 [data-theme="light"] .settings-section {
   background: var(--config-card-bg);
   border: 3px solid #f2e9e1;
@@ -157,11 +144,11 @@
 
 [data-theme="light"] .settings-section-header {
   color: #b4637a;
-  border-bottom-color: rgba(121, 117, 147, 0.15);
+  border-bottom-color: rgba(121,117,147,0.15);
 }
 
 [data-theme="light"] .settings-section-header .section-icon-badge {
-  background: rgba(180, 99, 122, 0.1);
+  background: rgba(180,99,122,0.1);
   color: #b4637a;
 }
 
@@ -193,7 +180,6 @@
   color: var(--config-danger);
 }
 
-/* ---------- Form controls ---------- */
 [data-theme="light"] .config-card .form-control {
   background: var(--config-input-bg);
 }
@@ -209,7 +195,6 @@
   color: #575279;
 }
 
-/* ---------- Buttons ---------- */
 [data-theme="light"] .btn-primary {
   color: #ffffff;
 }
@@ -227,9 +212,9 @@
 
 [data-theme="light"] .btn-secondary:hover {
   border-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
+  background: color-mix(in srgb,var(--danger) 10%,var(--card-bg));
   color: var(--danger);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb,var(--danger) 25%,transparent);
 }
 
 [data-theme="light"] .btn-danger {
@@ -249,7 +234,6 @@
   color: #575279;
 }
 
-/* ---------- Pill badges ---------- */
 [data-theme="light"] .pill {
   background: var(--config-pill-bg);
   color: var(--config-pill-text);
@@ -259,7 +243,6 @@
   color: var(--config-muted);
 }
 
-/* ---------- Data card stats ---------- */
 [data-theme="light"] .data-stat-item {
   background: #f2e9e1;
 }
@@ -268,15 +251,11 @@
   color: var(--config-text);
 }
 
-[data-theme="light"] .stat-label {
-  color: var(--config-muted);
-}
-
+[data-theme="light"] .stat-label,
 [data-theme="light"] .helper-text {
   color: var(--config-muted);
 }
 
-/* ---------- Quick links ---------- */
 [data-theme="light"] .quick-link {
   color: var(--config-text);
   border: 1px solid var(--config-card-border);
@@ -284,17 +263,15 @@
 
 [data-theme="light"] .quick-link:hover {
   border-color: #b4637a;
-  background: rgba(180, 99, 122, 0.1);
+  background: rgba(180,99,122,0.1);
   transform: translateY(-2px);
 }
 
-/* ---------- Alert overlay ---------- */
 [data-theme="light"] .alert-overlay:not(.hidden) {
-  background: rgba(87, 82, 121, 0.45);
+  background: rgba(87,82,121,0.45);
   backdrop-filter: blur(12px);
 }
 
-/* ---------- Custom alert dialog & Confirm Drawer ---------- */
 [data-theme="light"] .custom-alert {
   background: #fffaf3;
   border: 3px solid #b4637a;
@@ -309,7 +286,6 @@
   color: #797593;
 }
 
-/* ---------- Page title ---------- */
 [data-theme="light"] .page-title {
   color: var(--config-text);
 }
@@ -318,8 +294,7 @@
   color: var(--config-muted);
 }
 
-/* ---------- Mobile hover suppression ---------- */
-@media (hover: none) and (pointer: coarse), (max-width: 768px) {
+@media (hover:none) and (pointer:coarse),(max-width:768px) {
   [data-theme="light"] body .btn-primary:hover,
   [data-theme="light"] body .btn-secondary:hover,
   [data-theme="light"] body .btn-danger:hover,
@@ -330,16 +305,16 @@
 }
 
 [data-theme="light"] .preferences-card .custom-dropdown-selected {
-    background: #f2e9e1;
-    color: var(--gray);
-    border: none;
-    box-shadow: none;
-    padding: 12px 16px;
+  background: #f2e9e1;
+  color: var(--gray);
+  border: none;
+  box-shadow: none;
+  padding: 12px 16px;
 }
 
 [data-theme="light"] .preferences-card .custom-dropdown.open .custom-dropdown-options {
-    background: var(--card-bg);
-    scrollbar-color: #b4637a transparent;
+  background: var(--card-bg);
+  scrollbar-color: #b4637a transparent;
 }
 
 [data-theme="light"] .gmail-filter-chip {
@@ -353,7 +328,7 @@
   border: 2px solid #fffaf3;
 }
 
-[data-theme="light"] body .legal-footer-config{
+[data-theme="light"] body .legal-footer-config {
   background: #faf4ed;
   border: none;
   border-top: 0;
@@ -361,7 +336,6 @@
   box-shadow: none;
 }
 
-/* ---------- Tutorial Modal en Tema Claro ---------- */
 [data-theme="light"] .tutorial-modal .custom-alert-title {
   color: #575279;
 }
@@ -387,7 +361,7 @@
 [data-theme="light"] .tutorial-step-badge.badge-step-1,
 [data-theme="light"] .tutorial-step-badge.badge-step-2,
 [data-theme="light"] .tutorial-step-badge.badge-step-3 {
-  background: rgba(180, 99, 122, 0.15);
+  background: rgba(180,99,122,0.15);
   color: #b4637a;
 }
 
@@ -400,7 +374,7 @@
 [data-theme="light"] .tutorial-btn-link:hover {
   background: #fce7f3;
   color: #b4637a;
-  box-shadow: 0 4px 12px rgba(180, 99, 122, 0.2);
+  box-shadow: 0 4px 12px rgba(180,99,122,0.2);
 }
 
 [data-theme="light"] .tutorial-mockup-outer,
@@ -454,7 +428,6 @@
   color: #797593;
 }
 
-/* ---------- Panel de atajos de teclado ---------- */
 [data-theme="light"] .shortcuts-panel {
   background: #f5efea;
 }
@@ -467,7 +440,7 @@
   background: #fffaf3;
   color: #b4637a;
   border: 1px solid #e8dfd6;
-  box-shadow: 0 1px 2px rgba(87, 82, 121, 0.08);
+  box-shadow: 0 1px 2px rgba(87,82,121,0.08);
 }
 
 [data-theme="light"] .shortcuts-note {
