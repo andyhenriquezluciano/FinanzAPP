@@ -160,6 +160,12 @@ body.config-page .main-content::-webkit-scrollbar-thumb:hover {
   align-content: start;
 }
 
+@media (min-width:1281px) {
+  .config-right-stack {
+    padding-top: 20px;
+  }
+}
+
 .data-card,
 .quick-actions-card {
   grid-column: auto;

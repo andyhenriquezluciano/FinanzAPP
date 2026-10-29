@@ -3,7 +3,7 @@ import path from 'node:path';
 import * as css from 'css-tree';
 
 const root = path.resolve('src');
-const cssVersion = '20261029009';
+const cssVersion = '20261029010';
 const errors = [];
 const visited = new Set();
 const entries = [];

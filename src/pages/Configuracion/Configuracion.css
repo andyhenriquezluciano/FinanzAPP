@@ -1,8 +1,8 @@
 /* Entrada de estilos de configuracion. El orden de las capas forma parte del contrato visual. */
-@import '/lib/core/core.css?v=20261029009';
-@import '/lib/toast.css?v=20261029009';
-@import '/lib/shared-mobile-nav.css?v=20261029009';
-@import '/lib/components/overlays.css?v=20261029009';
-@import './styles/page.css?v=20261029009';
-@import './styles/tema-claro.css?v=20261029009';
-@import './styles/responsive.css?v=20261029009';
+@import '/lib/core/core.css?v=20261029010';
+@import '/lib/toast.css?v=20261029010';
+@import '/lib/shared-mobile-nav.css?v=20261029010';
+@import '/lib/components/overlays.css?v=20261029010';
+@import './styles/page.css?v=20261029010';
+@import './styles/tema-claro.css?v=20261029010';
+@import './styles/responsive.css?v=20261029010';
