@@ -15,6 +15,17 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&amp;logo=html5&amp;logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS-663399?style=for-the-badge&amp;logo=css&amp;logoColor=white" alt="CSS">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&amp;logo=javascript&amp;logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&amp;logo=vite&amp;logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/Firebase-DD2C00?style=for-the-badge&amp;logo=firebase&amp;logoColor=white" alt="Firebase">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Express-303030?style=for-the-badge&amp;logo=express&amp;logoColor=white" alt="Express">
+  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&amp;logo=chartdotjs&amp;logoColor=white" alt="Chart.js">
+</p>
+
+<p align="center">
   <a href="https://github.com/andyhenriquezluciano/FinanzAPP/actions/workflows/ci.yml">
     <img src="https://github.com/andyhenriquezluciano/FinanzAPP/actions/workflows/ci.yml/badge.svg" alt="Estado de las pruebas y compilación">
   </a>
