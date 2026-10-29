@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://byfinanzapp.com">Abrir aplicación</a> ·
   <a href="#capturas">Ver capturas</a> ·
-  <a href="#ejecutar-en-local">Ejecutar en local</a>
+  <a href="#tecnologías">Tecnologías</a>
 </p>
 
 <p align="center">
@@ -86,85 +86,6 @@ Panel de notificaciones para consultar los movimientos detectados al configurar 
 | Backend | Cloud Functions for Firebase, Express e integración con Gmail e IMAP |
 | Gráficos e informes | Chart.js y jsPDF |
 | Pruebas y automatización | Vitest, Playwright y GitHub Actions |
-
-## Ejecutar en local
-
-Necesitas **Git, Node.js 22 actualizado y npm**. La integración continua y el backend utilizan Node.js 22.
-
-### 1. Clonar e instalar
-
-```bash
-git clone https://github.com/andyhenriquezluciano/FinanzAPP.git
-cd FinanzAPP
-npm ci
-```
-
-### 2. Generar la configuración e iniciar
-
-```bash
-npm run build
-npm run dev
-```
-
-El primer comando genera los archivos de configuración y la carpeta `public/`. El segundo inicia Vite; por defecto, la aplicación está disponible en **http://localhost:5173**. Si el puerto está ocupado, utiliza la dirección que indique la terminal.
-
-Abre la pantalla de inicio de sesión y selecciona **Continuar como invitado** para probar el registro manual sin configurar una cuenta de Firebase. Los datos del invitado se guardan en ese navegador; puedes exportar un respaldo JSON desde la aplicación.
-
-### 3. Configurar una cuenta de Firebase (opcional)
-
-Copia la plantilla de configuración. En PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Completa los campos `FIREBASE_*` con la configuración de tu propio proyecto. Habilita los proveedores de autenticación que vayas a utilizar y autoriza el dominio de desarrollo. Para el acceso con Google, configura también `GOOGLE_CLIENT_ID`.
-
-Después de modificar `.env`, vuelve a ejecutar `npm run build` y reinicia el servidor de desarrollo.
-
-### Sincronización de correo (opcional)
-
-La detección de movimientos por correo requiere el backend y las credenciales de los servicios correspondientes:
-
-```bash
-npm ci --prefix functions
-```
-
-En PowerShell, crea su archivo de configuración:
-
-```powershell
-Copy-Item functions/.env.example functions/.env
-```
-
-Configura los parámetros de OAuth, los orígenes permitidos y los servicios que vayas a utilizar. Para cifrar las credenciales, define `KMS_KEY_NAME` o una `IMAP_ENCRYPTION_KEY` privada, generada de forma criptográficamente aleatoria y de al menos 32 bytes. El backend rechaza guardar secretos si no dispone de una configuración de cifrado válida.
-
-En Firebase, las funciones reciben `GMAIL_CLIENT_SECRET` e `IMAP_ENCRYPTION_KEY` desde Secret Manager. Mantén sus valores fuera del `.env` utilizado para desplegar; para pruebas con emuladores puedes utilizar `functions/.env.local`, que también está excluido de Git y del paquete de despliegue. Conserva la clave de cifrado para poder leer las credenciales ya guardadas.
-
-Define `GMAIL_BACKEND_URL` en el `.env` de la raíz con la URL del backend configurado y accesible, y vuelve a generar la configuración con `npm run build`. La sincronización de correo es independiente del registro manual de movimientos.
-
-Los archivos `.env` y los archivos generados `__config.js` están excluidos de Git. La configuración del cliente contiene parámetros públicos de la aplicación; los secretos de OAuth y cifrado deben permanecer únicamente en el backend.
-
-## Comandos útiles
-
-| Comando | Resultado |
-| --- | --- |
-| `npm run dev` | Inicia el servidor de desarrollo. |
-| `npm run build` | Genera `public/` para Firebase Hosting y los archivos de configuración. |
-| `npm run build:vite` | Valida la compilación con Vite y genera sus archivos en `dist/`; requiere haber generado previamente la configuración. |
-| `npm test` | Ejecuta las pruebas unitarias. |
-| `npm run test:e2e` | Ejecuta las pruebas de navegador. |
-| `npm run css:check` | Comprueba enlaces, imports, sintaxis y declaraciones repetidas de CSS para el mismo selector y condición. |
-
-Para ejecutar todas las pruebas unitarias, instala también las dependencias de `functions/`. Antes de ejecutar las pruebas de navegador por primera vez, instala Chromium:
-
-```bash
-npm ci --prefix functions
-npx playwright install chromium
-npm test
-npm run test:e2e
-```
-
-GitHub Actions comprueba credenciales expuestas, dependencias, sintaxis, estilos, pruebas unitarias y compilaciones en cada cambio a `main` y en las solicitudes de incorporación de cambios dirigidas a esa rama.
 
 ## Estructura del proyecto
 
