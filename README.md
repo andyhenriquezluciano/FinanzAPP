@@ -9,12 +9,6 @@
 </p>
 
 <p align="center">
-  <a href="https://byfinanzapp.com">Abrir aplicación</a> ·
-  <a href="#capturas">Ver capturas</a> ·
-  <a href="#tecnologías">Tecnologías</a>
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&amp;logo=html5&amp;logoColor=white" alt="HTML5">
   <img src="https://img.shields.io/badge/CSS-663399?style=for-the-badge&amp;logo=css&amp;logoColor=white" alt="CSS">
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&amp;logo=javascript&amp;logoColor=black" alt="JavaScript">
