@@ -172,7 +172,7 @@ app.use(async (req, res, next) => {
 app.use(express.json({ limit: '100kb' }));
 
 const {
-  GMAIL_RUNTIME_SECRETS,
+  CREDENTIAL_RUNTIME_SECRETS,
   GMAIL_PUBSUB_TOPIC,
   GMAIL_PUBSUB_SHORT,
   GMAIL_WATCH_RENEW_MARGIN_MS,
@@ -212,7 +212,7 @@ function regioned(runWithOptions = null) {
   return fallback;
 }
 
-exports.api = regioned({ secrets: GMAIL_RUNTIME_SECRETS, maxInstances: 10 }).https.onRequest(app);
+exports.api = regioned({ secrets: CREDENTIAL_RUNTIME_SECRETS, maxInstances: 10 }).https.onRequest(app);
 
 // --------------------
 // Server-side Gmail poller
@@ -1074,7 +1074,7 @@ async function gmailPubSubHandlerImpl(message) {
   }
 }
 
-exports.gmailPubSubHandler = regioned({ secrets: GMAIL_RUNTIME_SECRETS, maxInstances: 10 }).pubsub.topic(GMAIL_PUBSUB_SHORT).onPublish(gmailPubSubHandlerImpl);
+exports.gmailPubSubHandler = regioned({ secrets: CREDENTIAL_RUNTIME_SECRETS, maxInstances: 10 }).pubsub.topic(GMAIL_PUBSUB_SHORT).onPublish(gmailPubSubHandlerImpl);
 
 // Scheduled function: renovar watches próximos a expirar
 async function gmailWatchRenewImpl(context) {
@@ -1135,7 +1135,7 @@ async function gmailWatchRenewImpl(context) {
   return null;
 }
 
-exports.gmailWatchRenew = regioned({ secrets: GMAIL_RUNTIME_SECRETS, maxInstances: 2 }).pubsub.schedule(GMAIL_WATCH_RENEW_SCHEDULE).onRun(gmailWatchRenewImpl);
+exports.gmailWatchRenew = regioned({ secrets: CREDENTIAL_RUNTIME_SECRETS, maxInstances: 2 }).pubsub.schedule(GMAIL_WATCH_RENEW_SCHEDULE).onRun(gmailWatchRenewImpl);
 
 
 // ---- Admin reprocess endpoint (queues job) ----
@@ -1296,7 +1296,7 @@ async function reprocessJobOnCreateImpl(snap, ctx) {
 }
 
 if (typeof functionsV1.region === 'function') {
-  exports.reprocessJobOnCreate = functionsV1.region(REGION).runWith({ memory: '1GB', timeoutSeconds: 540, maxInstances: 5 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
+  exports.reprocessJobOnCreate = functionsV1.region(REGION).runWith({ secrets: CREDENTIAL_RUNTIME_SECRETS, memory: '1GB', timeoutSeconds: 540, maxInstances: 5 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
 } else {
-  exports.reprocessJobOnCreate = functionsV1.runWith({ memory: '1GB', timeoutSeconds: 540, maxInstances: 5 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
+  exports.reprocessJobOnCreate = functionsV1.runWith({ secrets: CREDENTIAL_RUNTIME_SECRETS, memory: '1GB', timeoutSeconds: 540, maxInstances: 5 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
 }

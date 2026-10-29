@@ -5,7 +5,7 @@ const CLIENT_ID = process.env.GMAIL_CLIENT_ID || '';
 const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || '';
 const REDIRECT_URI = process.env.GMAIL_REDIRECT_URI || process.env.REDIRECT_URI || 'postmessage';
 
-const GMAIL_RUNTIME_SECRETS = ['GMAIL_CLIENT_SECRET'];
+const CREDENTIAL_RUNTIME_SECRETS = ['GMAIL_CLIENT_SECRET', 'IMAP_ENCRYPTION_KEY'];
 const GMAIL_PUBSUB_TOPIC = process.env.GMAIL_PUBSUB_TOPIC || `projects/${process.env.GCLOUD_PROJECT}/topics/gmail-notifications`;
 const GMAIL_PUBSUB_SHORT = process.env.GMAIL_PUBSUB_SHORT || 'gmail-notifications';
 const GMAIL_WATCH_RENEW_MARGIN_MS = Number(process.env.GMAIL_WATCH_RENEW_MARGIN_MS || (5 * 60 * 1000));
@@ -56,7 +56,7 @@ module.exports = {
   CLIENT_ID,
   CLIENT_SECRET,
   REDIRECT_URI,
-  GMAIL_RUNTIME_SECRETS,
+  CREDENTIAL_RUNTIME_SECRETS,
   GMAIL_PUBSUB_TOPIC,
   GMAIL_PUBSUB_SHORT,
   GMAIL_WATCH_RENEW_MARGIN_MS,

@@ -3,7 +3,22 @@
     "rules": "firestore.rules"
   },
   "functions": {
-    "source": "functions"
+    "source": "functions",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "*.log",
+      ".env",
+      ".env.*",
+      ".runtimeconfig.json",
+      "*.pem",
+      "*.key",
+      "*.p12",
+      "*service-account*.json",
+      "serviceAccount*.json",
+      "credentials.json",
+      "client_secret*.json"
+    ]
   },
   "hosting": {
     "public": "public",
