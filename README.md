@@ -127,6 +127,8 @@ Copy-Item functions/.env.example functions/.env
 
 Configura los parámetros de OAuth, los orígenes permitidos y los servicios que vayas a utilizar. Para cifrar las credenciales, define `KMS_KEY_NAME` o una `IMAP_ENCRYPTION_KEY` privada, generada de forma criptográficamente aleatoria y de al menos 32 bytes. El backend rechaza guardar secretos si no dispone de una configuración de cifrado válida.
 
+En Firebase, las funciones reciben `GMAIL_CLIENT_SECRET` e `IMAP_ENCRYPTION_KEY` desde Secret Manager. Mantén sus valores fuera del `.env` utilizado para desplegar; para pruebas con emuladores puedes utilizar `functions/.env.local`, que también está excluido de Git y del paquete de despliegue. Conserva la clave de cifrado para poder leer las credenciales ya guardadas.
+
 Define `GMAIL_BACKEND_URL` en el `.env` de la raíz con la URL del backend configurado y accesible, y vuelve a generar la configuración con `npm run build`. La sincronización de correo es independiente del registro manual de movimientos.
 
 Los archivos `.env` y los archivos generados `__config.js` están excluidos de Git. La configuración del cliente contiene parámetros públicos de la aplicación; los secretos de OAuth y cifrado deben permanecer únicamente en el backend.
